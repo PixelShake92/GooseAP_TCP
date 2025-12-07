@@ -1,59 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>GooseGameAP</AssemblyName>
-    <LangVersion>7.3</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>GooseGameAP</RootNamespace>
+    <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <!-- BepInEx references - adjust paths as needed -->
-    <Reference Include="BepInEx">
-      <HintPath>lib\BepInEx.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\Untitled Goose Game_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>lib\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    
-    <!-- Unity references -->
     <Reference Include="UnityEngine">
-      <HintPath>lib\UnityEngine.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>lib\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>lib\UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>lib\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    
-    <!-- Game assembly -->
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp.dll</HintPath>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    
-    <!-- netstandard for enum support -->
+    <Reference Include="BepInEx">
+      <HintPath>..\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="netstandard">
-      <HintPath>lib\netstandard.dll</HintPath>
+      <HintPath>..\Untitled Goose Game_Data\Managed\netstandard.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
 </Project>

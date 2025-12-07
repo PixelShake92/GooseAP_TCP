@@ -68,6 +68,10 @@ namespace GooseGameAP
         // DeathLink
         public bool DeathLinkEnabled { get; set; } = false;
         private bool deathLinkPending = false;
+        
+        // Gate sync on reconnect
+        private bool pendingGateSync = false;
+        private float gateSyncTimer = 0f;
 
         // Gate snapshot system
         private class GateSnapshot
@@ -99,7 +103,7 @@ namespace GooseGameAP
         {
             Instance = this;
             Log = Logger;
-            Log.LogInfo("Goose Game AP v0.8.0 - Item Catalog Mode");
+            Log.LogInfo("Goose Game AP v0.9.4 - All Item Variants");
             
             harmony = new Harmony("com.archipelago.goosegame");
             harmony.PatchAll();
@@ -124,7 +128,10 @@ namespace GooseGameAP
             }
             
             if (Input.GetKeyDown(KeyCode.F1))
+            {
                 showUI = !showUI;
+                Log.LogInfo("F1 pressed - UI is now: " + (showUI ? "VISIBLE" : "HIDDEN"));
+            }
             
             // Debug keys for testing
             if (Input.GetKeyDown(KeyCode.F2))
@@ -269,6 +276,253 @@ namespace GooseGameAP
                 deathLinkPending = false;
                 ApplyDeathLink();
             }
+            
+            // Handle pending gate sync (for reconnection)
+            if (pendingGateSync && GameManager.instance != null && GameManager.instance.allGeese != null && GameManager.instance.allGeese.Count > 0)
+            {
+                gateSyncTimer += Time.deltaTime;
+                if (gateSyncTimer >= 2.0f) // Wait 2 seconds for scene to be fully ready
+                {
+                    pendingGateSync = false;
+                    gateSyncTimer = 0f;
+                    SyncGatesFromAccessFlags();
+                }
+            }
+            
+            // Automatic item pickup tracking
+            TrackHeldItem();
+        }
+        
+        // Item tracking state
+        private Prop lastHeldProp = null;
+        private HashSet<string> firstTimePickups = new HashSet<string>();
+        
+        private void TrackHeldItem()
+        {
+            if (GameManager.instance == null || GameManager.instance.allGeese == null) return;
+            
+            Goose goose = null;
+            foreach (var g in GameManager.instance.allGeese)
+            {
+                if (g != null && g.isActiveAndEnabled)
+                {
+                    goose = g;
+                    break;
+                }
+            }
+            if (goose == null) return;
+            
+            var holder = goose.GetComponent<Holder>();
+            if (holder == null) return;
+            
+            Prop currentProp = holder.holding;
+            
+            // Detect pickup (was null, now holding something)
+            if (currentProp != null && lastHeldProp == null)
+            {
+                string itemName = currentProp.gameObject.name;
+                string itemPath = GetGameObjectPath(currentProp.gameObject);
+                string itemKey = itemName; // Use just name for first-time tracking
+                
+                Log.LogInfo("[AUTO] Picked up: " + itemName);
+                
+                // Check if this is first time picking up this item TYPE
+                if (firstTimePickups.Add(itemKey))
+                {
+                    Log.LogInfo("[AUTO] >>> FIRST TIME PICKUP: " + itemName + " <<<");
+                    OnFirstTimePickup(itemName, itemPath);
+                }
+            }
+            // Detect drop (was holding, now null)
+            else if (currentProp == null && lastHeldProp != null)
+            {
+                Log.LogInfo("[AUTO] Dropped: " + lastHeldProp.gameObject.name);
+            }
+            // Detect swap (holding different item)
+            else if (currentProp != null && lastHeldProp != null && currentProp != lastHeldProp)
+            {
+                string itemName = currentProp.gameObject.name;
+                string itemKey = itemName;
+                
+                Log.LogInfo("[AUTO] Swapped to: " + itemName);
+                
+                if (firstTimePickups.Add(itemKey))
+                {
+                    string itemPath = GetGameObjectPath(currentProp.gameObject);
+                    Log.LogInfo("[AUTO] >>> FIRST TIME PICKUP: " + itemName + " <<<");
+                    OnFirstTimePickup(itemName, itemPath);
+                }
+            }
+            
+            lastHeldProp = currentProp;
+        }
+        
+        private void OnFirstTimePickup(string itemName, string itemPath)
+        {
+            // Show notification
+            ShowNotification("First pickup: " + itemName);
+            chatMessages.Add("Picked up: " + itemName);
+            
+            // TODO: Send AP location check based on item
+            // For now, just log - we'll map items to locations next
+            long? locationId = GetItemLocationId(itemName);
+            if (locationId.HasValue && connected)
+            {
+                if (!checkedLocations.Contains(locationId.Value))
+                {
+                    checkedLocations.Add(locationId.Value);
+                    string json = "[{\"cmd\":\"LocationChecks\",\"locations\":[" + locationId.Value + "]}]";
+                    SendPacket(json);
+                    Log.LogInfo("[AUTO] Sent location check for item: " + itemName + " (ID: " + locationId.Value + ")");
+                }
+            }
+        }
+        
+        private long? GetItemLocationId(string itemName)
+        {
+            // Map item names to AP location IDs
+            // Using BASE_ID + 1000 range for item pickups
+            // NOTE: Parenthetical numbers like (1), (2) are UNIQUE items, do NOT strip them
+            
+            string lowerName = itemName.ToLower().Trim();
+            Log.LogInfo("[ITEM LOOKUP] Raw: '" + itemName + "' | Lower: '" + lowerName + "'");
+            
+            switch (lowerName)
+            {
+                // Garden items (1001-1020)
+                case "boot": return BASE_ID + 1001;
+                case "radiosmall": return BASE_ID + 1002;
+                case "trowel": return BASE_ID + 1003;
+                case "keys": return BASE_ID + 1004;
+                case "carrot": return BASE_ID + 1005;
+                case "tulip": return BASE_ID + 1006;
+                case "apple": return BASE_ID + 1007;
+                case "jam": return BASE_ID + 1008;
+                case "picnicmug": return BASE_ID + 1009;
+                case "thermos (1)": return BASE_ID + 1010;
+                case "sandwichr": return BASE_ID + 1011;
+                case "sandwichl": return BASE_ID + 1012;
+                case "forkgarden": return BASE_ID + 1013;
+                case "strawhat": return BASE_ID + 1014;
+                case "drinkcan": return BASE_ID + 1015;
+                case "tennisball": return BASE_ID + 1016;
+                case "gardenerhat": return BASE_ID + 1017;
+                case "apple (1)": return BASE_ID + 1018;
+                
+                // High Street items (1021-1070)
+                case "wimpglasses": return BASE_ID + 1021;
+                case "hornrimmedglasses": return BASE_ID + 1022;
+                case "redglasses": return BASE_ID + 1023;
+                case "sunglasses": return BASE_ID + 1024;
+                case "toiletpaper": return BASE_ID + 1025;
+                case "toycar": return BASE_ID + 1026;
+                case "hairbrush": return BASE_ID + 1027;
+                case "toothbrush": return BASE_ID + 1028;
+                case "stereoscope": return BASE_ID + 1029;
+                case "dishwashbottle": return BASE_ID + 1030;
+                case "canblue": return BASE_ID + 1031;
+                case "canyellow": return BASE_ID + 1032;
+                case "canorange": return BASE_ID + 1033;
+                case "weedtool": return BASE_ID + 1034;
+                case "lilyflower": return BASE_ID + 1035;
+                case "orange": return BASE_ID + 1036;
+                case "tomato (1)": return BASE_ID + 1037;
+                case "carrotnogreen (1)": return BASE_ID + 1038;
+                case "cucumber (1)": return BASE_ID + 1039;
+                case "leek (1)": return BASE_ID + 1040;
+                case "fusilage": return BASE_ID + 1041;
+                case "pintbottle": return BASE_ID + 1042;
+                case "spraybottle": return BASE_ID + 1043;
+                case "walkietalkieb": return BASE_ID + 1044;
+                case "walkietalkie": return BASE_ID + 1045;
+                case "applecore": return BASE_ID + 1046;
+                case "applecore (1)": return BASE_ID + 1058;
+                case "dustbinlid": return BASE_ID + 1047;
+                case "pintbottle (1)": return BASE_ID + 1048;
+                case "coin": return BASE_ID + 1049;
+                case "chalk": return BASE_ID + 1050;
+                case "tomato (2)": return BASE_ID + 1051;
+                case "orange (1)": return BASE_ID + 1052;
+                case "orange (2)": return BASE_ID + 1053;
+                case "carrotnogreen (3)": return BASE_ID + 1054;
+                case "carrotnogreen (2)": return BASE_ID + 1057;
+                case "cucumber (2)": return BASE_ID + 1055;
+                case "leek (2)": return BASE_ID + 1056;
+                case "leek (3)": return BASE_ID + 1059;
+                case "tomato (3)": return BASE_ID + 1060;
+                case "cucumber": return BASE_ID + 1061;
+                
+                // Back Gardens items (1071-1090)
+                case "bowprop_b": return BASE_ID + 1071;
+                case "dummyprop": return BASE_ID + 1072;
+                case "cricketball": return BASE_ID + 1073;
+                case "bustpipeprop": return BASE_ID + 1074;
+                case "busthatprop": return BASE_ID + 1075;
+                case "bustglassesprop": return BASE_ID + 1076;
+                case "cleanslipperr": return BASE_ID + 1077;
+                case "cleanslipperl": return BASE_ID + 1078;
+                case "teacup": return BASE_ID + 1079;
+                case "newspaper": return BASE_ID + 1080;
+                case "socksplaceholder": return BASE_ID + 1081;
+                case "socksplaceholder (1)": return BASE_ID + 1082;
+                case "vaseprop": return BASE_ID + 1083;
+                case "bowprop": return BASE_ID + 1084;
+                case "potstack": return BASE_ID + 1085;
+                case "soap": return BASE_ID + 1086;
+                case "paintbrush": return BASE_ID + 1087;
+                case "vasebroken01": return BASE_ID + 1088;
+                case "vasebroken02": return BASE_ID + 1089;
+                case "rightstrap": return BASE_ID + 1090;
+                case "rightstrap (1)": return BASE_ID + 1091;
+                case "rightstrap (2)": return BASE_ID + 1092;
+                case "badmintonracket": return BASE_ID + 1093;
+                
+                // Pub items (1101-1130)
+                case "fishingbobberprop": return BASE_ID + 1101;
+                case "exitletterprop":
+                case "exitletter": return BASE_ID + 1102;
+                case "pubtomato": return BASE_ID + 1103;
+                case "plate": return BASE_ID + 1104;
+                case "plate (1)": return BASE_ID + 1105;
+                case "plate (2)": return BASE_ID + 1106;
+                case "quoitgreen (2)": return BASE_ID + 1107;
+                case "quoitred (1)": return BASE_ID + 1108;
+                case "fork": return BASE_ID + 1109;
+                case "fork (1)": return BASE_ID + 1110;
+                case "knife": return BASE_ID + 1111;
+                case "knife (1)": return BASE_ID + 1112;
+                case "cork": return BASE_ID + 1113;
+                case "candlestick": return BASE_ID + 1114;
+                case "flowerforvase": return BASE_ID + 1115;
+                case "dart1": return BASE_ID + 1116;
+                case "dart2": return BASE_ID + 1117;
+                case "dart3": return BASE_ID + 1118;
+                case "harmonica": return BASE_ID + 1119;
+                case "pintglassprop": return BASE_ID + 1120;
+                case "toyboat": return BASE_ID + 1121;
+                case "woolyhat": return BASE_ID + 1122;
+                case "peppergrinder": return BASE_ID + 1123;
+                case "pubwomancloth": return BASE_ID + 1124;
+                
+                // Model Village items (1131-1150)
+                case "miniperson variant - child": return BASE_ID + 1131;
+                case "miniperson variant - jumpsuit": return BASE_ID + 1132;
+                case "miniperson variant - gardener": return BASE_ID + 1133;
+                case "minishovelprop": return BASE_ID + 1134;
+                case "flowerpoppy": return BASE_ID + 1135;
+                case "miniperson variant - old woman": return BASE_ID + 1136;
+                case "miniphonedoorprop": return BASE_ID + 1137;
+                case "minimailpillarprop": return BASE_ID + 1138;
+                case "miniperson variant - postie": return BASE_ID + 1139;
+                case "miniperson variant - vestman": return BASE_ID + 1140;
+                case "miniperson": return BASE_ID + 1141;
+                case "timberhandleprop": return BASE_ID + 1142;
+                case "goldenbell": return BASE_ID + 1143;
+                
+                default: 
+                    Log.LogWarning("[ITEM] Unknown item not mapped: " + itemName);
+                    return null;
+            }
         }
 
         private void OnGUI()
@@ -292,8 +546,11 @@ namespace GooseGameAP
             if (GUI.Button(new Rect(20, 120, 180, 30), connected ? "Connected!" : "Connect"))
                 if (!connected) Connect();
             
-            if (GUI.Button(new Rect(210, 120, 180, 30), "Disconnect"))
+            if (GUI.Button(new Rect(210, 120, 90, 30), "Disconnect"))
                 Disconnect();
+            
+            if (GUI.Button(new Rect(310, 120, 90, 30), "Sync Gates"))
+                SyncGatesFromAccessFlags();
 
             GUI.Label(new Rect(20, 158, 410, 20), status);
             
@@ -368,7 +625,7 @@ namespace GooseGameAP
         {
             if (isTired)
                 return 0.5f;
-            return 1.0f + (SpeedyFeetCount * 0.15f);
+            return 1.0f + (SpeedyFeetCount * 0.00f);
         }
 
         // ==================== GATE DEBUG FUNCTIONS ====================
@@ -835,6 +1092,14 @@ namespace GooseGameAP
                     if (end > start)
                         int.TryParse(data.Substring(start, end - start), out playerSlot);
                 }
+                
+                // On connect/reconnect, clear received items to force re-sync
+                // AP will send all items we've ever received
+                receivedItemIds.Clear();
+                Log.LogInfo("Cleared receivedItemIds for fresh sync from AP");
+                
+                // Queue a delayed gate re-sync in case items arrive before scene is ready
+                pendingGateSync = true;
             }
             else if (data.Contains("\"cmd\":\"ReceivedItems\""))
             {
@@ -1005,6 +1270,47 @@ namespace GooseGameAP
             isSuspicious = false;
             if (hadTraps)
                 ShowNotification("Trap effects have worn off!");
+        }
+        
+        public void SyncGatesFromAccessFlags()
+        {
+            Log.LogInfo("=== SYNCING GATES FROM ACCESS FLAGS ===");
+            Log.LogInfo("  High Street: " + HasHighStreetAccess);
+            Log.LogInfo("  Back Gardens: " + HasBackGardensAccess);
+            Log.LogInfo("  Pub: " + HasPubAccess);
+            Log.LogInfo("  Model Village: " + HasModelVillageAccess);
+            
+            if (HasHighStreetAccess)
+            {
+                OpenGatesForArea("HighStreet");
+                Log.LogInfo("  Opened High Street gates");
+            }
+            if (HasBackGardensAccess)
+            {
+                OpenGatesForArea("Backyards");
+                Log.LogInfo("  Opened Back Gardens gates");
+            }
+            if (HasPubAccess)
+            {
+                OpenGatesForArea("Pub");
+                Log.LogInfo("  Opened Pub gates");
+            }
+            if (HasModelVillageAccess)
+            {
+                OpenGatesForArea("Finale");
+                Log.LogInfo("  Opened Model Village gates");
+            }
+            
+            // Always ensure hub paths are open
+            var parkHubBlocker = GameObject.Find("highStreetDynamic/GROUP_Garage/irongate/GateSystem/GateExtraColliders/ParkHubGateExtraCollider");
+            if (parkHubBlocker != null)
+            {
+                parkHubBlocker.SetActive(false);
+                Log.LogInfo("  Disabled ParkHubGateExtraCollider");
+            }
+            
+            ShowNotification("Gates synced from server!");
+            Log.LogInfo("=== GATE SYNC COMPLETE ===");
         }
 
         private void ShowNotification(string message)
@@ -1483,72 +1789,8 @@ namespace GooseGameAP
                 return;
             }
             
-            // Try to get the held prop via reflection
-            var holderType = holder.GetType();
-            Prop heldProp = null;
-            
-            // Try common field names for held item
-            string[] fieldNames = { "heldProp", "held", "currentProp", "prop", "grabbedProp", "heldItem", "item" };
-            foreach (var fieldName in fieldNames)
-            {
-                var field = holderType.GetField(fieldName, System.Reflection.BindingFlags.Public | 
-                                                           System.Reflection.BindingFlags.NonPublic | 
-                                                           System.Reflection.BindingFlags.Instance);
-                if (field != null)
-                {
-                    var val = field.GetValue(holder);
-                    if (val is Prop p)
-                    {
-                        heldProp = p;
-                        Log.LogInfo("Found held prop via field: " + fieldName);
-                        break;
-                    }
-                }
-            }
-            
-            // Also try properties
-            if (heldProp == null)
-            {
-                var props = holderType.GetProperties(System.Reflection.BindingFlags.Public | 
-                                                      System.Reflection.BindingFlags.NonPublic | 
-                                                      System.Reflection.BindingFlags.Instance);
-                foreach (var prop in props)
-                {
-                    if (prop.PropertyType == typeof(Prop) || prop.PropertyType.IsSubclassOf(typeof(Prop)))
-                    {
-                        try
-                        {
-                            var val = prop.GetValue(holder, null);
-                            if (val is Prop p && p != null)
-                            {
-                                heldProp = p;
-                                Log.LogInfo("Found held prop via property: " + prop.Name);
-                                break;
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            
-            // Check grasper child for held item (items parent to beakupper/grasper)
-            if (heldProp == null)
-            {
-                Transform grasper = FindChildRecursive(goose.transform, "grasper");
-                if (grasper != null && grasper.childCount > 0)
-                {
-                    foreach (Transform child in grasper)
-                    {
-                        var p = child.GetComponent<Prop>();
-                        if (p != null)
-                        {
-                            heldProp = p;
-                            Log.LogInfo("Found held prop via grasper child");
-                            break;
-                        }
-                    }
-                }
-            }
+            // Use the discovered 'holding' property
+            Prop heldProp = holder.holding;
             
             if (heldProp == null)
             {
@@ -1980,6 +2222,8 @@ namespace GooseGameAP
             }},
             { "Finale", new[] {
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem",
+                "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate",
+                "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate/gateMetal",
                 "overworldStatic/GROUP_ParkToPub/FinaleToParkGateSystem"  // Park to finale
             }},
             { "Garden", new[] {
@@ -2142,6 +2386,30 @@ namespace GooseGameAP
                             cowCatcher.gameObject.SetActive(false);
                             Log.LogInfo("    Disabled cowCatcher on gateMetal");
                         }
+                    }
+                }
+            }
+            else if (gatePath.Contains("PubToFinaleGateSystem"))
+            {
+                // Pub to Model Village gate
+                DisableChildRecursive(gateObj.transform, "meshLinks");
+                
+                Transform gate = gateObj.transform.Find("gate");
+                if (gate != null)
+                {
+                    Transform gateMetal = gate.Find("gateMetal");
+                    if (gateMetal != null)
+                    {
+                        // Disable the collider on gateMetal
+                        var colliders = gateMetal.GetComponents<Collider>();
+                        foreach (var col in colliders)
+                        {
+                            col.enabled = false;
+                            Log.LogInfo("    Disabled collider on gateMetal");
+                        }
+                        // Also try disabling the entire gateMetal if needed
+                        gateMetal.gameObject.SetActive(false);
+                        Log.LogInfo("    Disabled gateMetal object");
                     }
                 }
             }
@@ -2525,7 +2793,10 @@ namespace GooseGameAP
     }
     
     // === ITEM PICKUP PATCHES ===
+    // These are commented out until we discover the correct method signatures
+    // Use Alt+F7 to explore Holder/Prop classes and find the right methods
     
+    /*
     [HarmonyPatch]
     public static class HolderPatches
     {
@@ -2610,4 +2881,5 @@ namespace GooseGameAP
             }
         }
     }
+    */
 }
