@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "lEowJ6CuPyk=",
+  "success": true,
+  "projectFilePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Untitled Goose Game\\GosseGameAPMin\\lib\\GooseGameAP.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\shane\\.nuget\\packages\\archipelago.multiclient.net\\6.6.0\\archipelago.multiclient.net.6.6.0.nupkg.sha512",
+    "C:\\Users\\shane\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.3\\microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "C:\\Users\\shane\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net35\\1.0.3\\microsoft.netframework.referenceassemblies.net35.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

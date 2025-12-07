@@ -1,0 +1,5 @@
+C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\GosseGameAPMin\lib\obj\Release\net35\GooseGameAP.csproj.AssemblyReference.cache
+C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\GosseGameAPMin\lib\obj\Release\net35\GooseGameAP.GeneratedMSBuildEditorConfig.editorconfig
+C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\GosseGameAPMin\lib\obj\Release\net35\GooseGameAP.AssemblyInfoInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\GosseGameAPMin\lib\obj\Release\net35\GooseGameAP.AssemblyInfo.cs
+C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\GosseGameAPMin\lib\obj\Release\net35\GooseGameAP.csproj.CoreCompileInputs.cache
