@@ -47,7 +47,7 @@ namespace GooseGameAP
                 case 200: return "Mega Honk";
                 case 201: return "Speedy Feet";
                 case 202: return "Silent Steps";
-                case 203: return "A Nice Day";
+                case 203: return "A Goose Day";
                 case 300: return "Tired Goose";
                 case 301: return "Clumsy Feet";
                 case 302: return "Butterfingers";

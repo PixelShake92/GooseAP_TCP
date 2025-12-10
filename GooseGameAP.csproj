@@ -37,6 +37,10 @@
       <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>..\Untitled Goose Game_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\BepInEx\core\BepInEx.dll</HintPath>
       <Private>false</Private>

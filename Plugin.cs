@@ -26,6 +26,7 @@ namespace GooseGameAP
         public GateManager GateManager { get; private set; }
         public TrapManager TrapManager { get; private set; }
         public ItemTracker ItemTracker { get; private set; }
+        public GooseColorManager GooseColor { get; private set; }
         
         // Area access flags (Hub is always accessible - starting area)
         public bool HasGardenAccess { get; set; } = false;
@@ -36,8 +37,8 @@ namespace GooseGameAP
         public bool HasGoldenBell { get; set; } = false;
         
         // Buff tracking
-        public bool IsSilent { get; set; } = false;
-        public int MegaHonkCount { get; set; } = 0;
+        public bool IsSilent => TrapManager?.IsSilent ?? false;
+        public int MegaHonkCount => TrapManager?.MegaHonkCount ?? 0;
         
         // DeathLink
         public bool DeathLinkEnabled { get; set; } = false;
@@ -60,6 +61,7 @@ namespace GooseGameAP
             TrapManager = new TrapManager(this);
             GateManager = new GateManager(this);
             ItemTracker = new ItemTracker(this);
+            GooseColor = new GooseColorManager(this);
             Client = new ArchipelagoClient(this);
             
             harmony = new Harmony("com.archipelago.goosegame");
@@ -78,6 +80,9 @@ namespace GooseGameAP
                 hasInitializedGates = true;
                 Log.LogInfo("Game scene detected, starting initialization...");
                 // Only initialize gates, don't teleport - let player start where they are
+                
+                // Refresh goose color renderers
+                GooseColor?.RefreshRenderers();
                 StartCoroutine(DelayedGateInit());
             }
             
@@ -107,6 +112,9 @@ namespace GooseGameAP
             
             // Update traps
             TrapManager?.Update();
+            
+            // Update goose color (for rainbow mode)
+            GooseColor?.Update();
             
             // Track pickups/drags
             ItemTracker?.Update();
@@ -189,6 +197,19 @@ namespace GooseGameAP
                 UI?.ShowNotification("Cleared hub blockers!");
             }
             
+            // N key: Use a stored Goose Day
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                TrapManager?.UseGooseDay(15f);
+            }
+            
+            // C key: Cycle goose color
+            if (Input.GetKeyDown(KeyCode.C) && !Input.GetKey(KeyCode.LeftControl) && !Input.GetKey(KeyCode.RightControl))
+            {
+                GooseColor?.CycleColor();
+                UI?.ShowNotification($"Goose Color: {GooseColor?.CurrentColorName}");
+            }
+            
             // Ctrl keys for traps
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
@@ -204,10 +225,35 @@ namespace GooseGameAP
                 {
                     TrapManager?.ActivateTired(30f);
                 }
+                if (Input.GetKeyDown(KeyCode.Alpha4))
+                {
+                    Log.LogInfo("DEBUG: Ctrl+4 pressed - force activating Goose Day");
+                    TrapManager?.ForceActivateGooseDay(15f);
+                }
                 if (Input.GetKeyDown(KeyCode.Alpha5))
                 {
                     TrapManager?.ForceHonk();
                     UI?.ShowNotification("DEBUG: Force honk!");
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha6))
+                {
+                    // Debug: Add a Speedy Feet
+                    TrapManager.SpeedyFeetCount++;
+                    int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
+                    UI?.ShowNotification($"DEBUG: Speedy Feet +{speedBonus}% ({TrapManager.SpeedyFeetCount}/10)");
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha7))
+                {
+                    // Debug: Add a Mega Honk level
+                    TrapManager.MegaHonkCount++;
+                    string[] levelDesc = { "", "LOUD", "LOUDER", "SCARY" };
+                    UI?.ShowNotification($"DEBUG: Mega Honk Level {TrapManager.MegaHonkLevel} - {levelDesc[TrapManager.MegaHonkLevel]}");
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha8))
+                {
+                    // Debug: Toggle Silent Steps
+                    TrapManager.IsSilent = !TrapManager.IsSilent;
+                    UI?.ShowNotification($"DEBUG: Silent Steps {(TrapManager.IsSilent ? "ON" : "OFF")}");
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha9))
                 {
@@ -218,6 +264,17 @@ namespace GooseGameAP
                 {
                     TrapManager?.ClearTraps();
                     UI?.ShowNotification("DEBUG: All traps cleared!");
+                }
+                if (Input.GetKeyDown(KeyCode.G))
+                {
+                    // Debug: Give a stored Goose Day
+                    TrapManager?.ActivateGooseDay();
+                }
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    // Debug: Reset goose color to default
+                    GooseColor?.ResetToDefault();
+                    UI?.ShowNotification("Goose color reset to default");
                 }
             }
         }
@@ -344,26 +401,28 @@ namespace GooseGameAP
                     break;
                     
                 case 200:
-                    MegaHonkCount++;
-                    UI?.ShowNotification("MEGA HONK! (cosmetic - x" + MegaHonkCount + ")");
+                    TrapManager.MegaHonkCount++;
+                    string[] levelDesc = { "", "NPCs will notice!", "Heard from further away!", "NPCs will drop items in fear!" };
+                    UI?.ShowNotification($"MEGA HONK Level {TrapManager.MegaHonkLevel}! {levelDesc[TrapManager.MegaHonkLevel]}");
                     break;
                 case 201:
                     TrapManager.SpeedyFeetCount++;
-                    UI?.ShowNotification("Speedy Feet! (cosmetic)");
+                    int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
+                    UI?.ShowNotification($"SPEEDY FEET! +{speedBonus}% speed ({TrapManager.SpeedyFeetCount}/10)");
                     break;
                 case 202:
-                    IsSilent = true;
-                    UI?.ShowNotification("Silent Steps! (cosmetic)");
+                    TrapManager.IsSilent = true;
+                    UI?.ShowNotification("SILENT STEPS! NPCs can't hear your footsteps!");
                     break;
                 case 203:
-                    UI?.ShowNotification("What a nice day to be a goose!");
+                    TrapManager?.ActivateGooseDay(15f);
                     break;
                     
                 case 300:
-                    TrapManager?.ActivateTired(30f);
+                    TrapManager?.ActivateTired(15f);
                     break;
                 case 301:
-                    TrapManager?.ActivateClumsy(30f);
+                    TrapManager?.ActivateClumsy(20f);
                     break;
                 case 302:
                     TrapManager?.ActivateButterfingers(10f);
