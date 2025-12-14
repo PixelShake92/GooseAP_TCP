@@ -3,7 +3,7 @@
 ## Required Software
 
 - Untitled Goose Game (Steam)
-- BepInEx 5.x for Unity Mono
+- BepInEx 5.4.9.0 for Unity Mono
 - .NET 6.0 Runtime (for the proxy server)
 - Archipelago client files (from releases)
 - Archipelago server 0.5.0 or higher
@@ -12,7 +12,7 @@
 
 ### Step 1: Install BepInEx
 
-1. Download [BepInEx 5.x for Unity Mono (x64)](https://github.com/BepInEx/BepInEx/releases)
+1. Download https://github.com/BepInEx/BepInEx/releases/tag/v5.4.9 
 2. Extract the contents into your Untitled Goose Game folder
    - Steam: `C:\Program Files (x86)\Steam\steamapps\common\Untitled Goose Game\`
    - Epic: Check your Epic Games library for the install location
@@ -31,7 +31,7 @@
    - `APProxy.dll`
    - `APProxy.runtimeconfig.json`
 2. Place `GooseGameAP.dll` in `Untitled Goose Game\BepInEx\plugins\`
-3. Place the APProxy files (`APProxy.exe`, `APProxy.dll`, `APProxy.runtimeconfig.json`) in your Untitled Goose Game folder (same folder as the game exe)
+3. Place the APProxy files (`APProxy.exe`, `APProxy.dll`, `APProxy.runtimeconfig.json`)  in `Untitled Goose Game\BepInEx\plugins\`
 
 ### Step 4: Install the APWorld
 
