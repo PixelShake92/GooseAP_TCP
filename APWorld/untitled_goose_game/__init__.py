@@ -16,7 +16,7 @@ class GooseGameWeb(WebWorld):
         "English",
         "setup_en.md",
         "setup/en",
-        ["YourName"]
+        ["PixelShake92"]
     )
     
     tutorials = [setup_en]
