@@ -87,6 +87,10 @@ namespace GooseGameAP
                 
                 // Refresh goose color renderers
                 GooseColour?.RefreshRenderers();
+                
+                // Scan and rename duplicate items EARLY before player can pick them up
+                PositionTracker?.ScanAndCacheItems();
+                
                 StartCoroutine(DelayedGateInit());
             }
             
@@ -122,6 +126,12 @@ namespace GooseGameAP
             
             // Track pickups/drags
             ItemTracker?.Update();
+        }
+        
+        private void LateUpdate()
+        {
+            // Confused feet now uses velocity inversion in MoverPatches
+            // stickAim inversion didn't work - Mover reads input directly
         }
         
         private void HandleDebugKeys()
@@ -255,27 +265,44 @@ namespace GooseGameAP
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha5))
                 {
-                    TrapManager?.ForceHonk();
-                    UI?.ShowNotification("DEBUG: Force honk!");
+                    TrapManager?.ActivateConfused(15f);
+                    UI?.ShowNotification("DEBUG: Confused Feet activated!");
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha6))
                 {
-                    // Debug: Add a Speedy Feet
-                    TrapManager.SpeedyFeetCount++;
-                    int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
-                    UI?.ShowNotification($"DEBUG: Speedy Feet +{speedBonus}% ({TrapManager.SpeedyFeetCount}/10)");
+                    // Debug: Add a Speedy Feet (max 10)
+                    if (TrapManager.SpeedyFeetCount < 10)
+                    {
+                        TrapManager.SpeedyFeetCount++;
+                        TrapManager.SaveProgressiveItems();
+                        int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
+                        UI?.ShowNotification($"DEBUG: Speedy Feet +{speedBonus}% ({TrapManager.SpeedyFeetCount}/10)");
+                    }
+                    else
+                    {
+                        UI?.ShowNotification("DEBUG: Speedy Feet already at max (10)!");
+                    }
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha7))
                 {
-                    // Debug: Add a Mega Honk level
-                    TrapManager.MegaHonkCount++;
-                    string[] levelDesc = { "", "LOUD", "LOUDER", "SCARY" };
-                    UI?.ShowNotification($"DEBUG: Mega Honk Level {TrapManager.MegaHonkLevel} - {levelDesc[TrapManager.MegaHonkLevel]}");
+                    // Debug: Add a Mega Honk level (max 3)
+                    if (TrapManager.MegaHonkCount < 3)
+                    {
+                        TrapManager.MegaHonkCount++;
+                        TrapManager.SaveProgressiveItems();
+                        string[] levelDesc = { "", "LOUD", "LOUDER", "SCARY" };
+                        UI?.ShowNotification($"DEBUG: Mega Honk Level {TrapManager.MegaHonkLevel} - {levelDesc[TrapManager.MegaHonkLevel]}");
+                    }
+                    else
+                    {
+                        UI?.ShowNotification("DEBUG: Mega Honk already at max (3)!");
+                    }
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha8))
                 {
                     // Debug: Toggle Silent Steps
                     TrapManager.IsSilent = !TrapManager.IsSilent;
+                    TrapManager.SaveProgressiveItems();
                     UI?.ShowNotification($"DEBUG: Silent Steps {(TrapManager.IsSilent ? "ON" : "OFF")}");
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha9))
@@ -438,17 +465,34 @@ namespace GooseGameAP
                     break;
                     
                 case 200:
-                    TrapManager.MegaHonkCount++;
-                    string[] levelDesc = { "", "NPCs will notice!", "Heard from further away!", "NPCs will drop items in fear!" };
-                    UI?.ShowNotification($"MEGA HONK Level {TrapManager.MegaHonkLevel}! {levelDesc[TrapManager.MegaHonkLevel]}");
+                    if (TrapManager.MegaHonkCount < 3)
+                    {
+                        TrapManager.MegaHonkCount++;
+                        TrapManager.SaveProgressiveItems();
+                        string[] levelDesc = { "", "NPCs will notice!", "Heard from further away!", "NPCs will drop items in fear!" };
+                        UI?.ShowNotification($"MEGA HONK Level {TrapManager.MegaHonkLevel}! {levelDesc[TrapManager.MegaHonkLevel]}");
+                    }
+                    else
+                    {
+                        UI?.ShowNotification("MEGA HONK already at max level!");
+                    }
                     break;
                 case 201:
-                    TrapManager.SpeedyFeetCount++;
-                    int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
-                    UI?.ShowNotification($"SPEEDY FEET! +{speedBonus}% speed ({TrapManager.SpeedyFeetCount}/10)");
+                    if (TrapManager.SpeedyFeetCount < 10)
+                    {
+                        TrapManager.SpeedyFeetCount++;
+                        TrapManager.SaveProgressiveItems();
+                        int speedBonus = Math.Min(TrapManager.SpeedyFeetCount * 5, 50);
+                        UI?.ShowNotification($"SPEEDY FEET! +{speedBonus}% speed ({TrapManager.SpeedyFeetCount}/10)");
+                    }
+                    else
+                    {
+                        UI?.ShowNotification("SPEEDY FEET already at max!");
+                    }
                     break;
                 case 202:
                     TrapManager.IsSilent = true;
+                    TrapManager.SaveProgressiveItems();
                     UI?.ShowNotification("SILENT STEPS! NPCs can't hear your footsteps!");
                     break;
                 case 203:
@@ -459,7 +503,7 @@ namespace GooseGameAP
                     TrapManager?.ActivateTired(15f);
                     break;
                 case 301:
-                    TrapManager?.ActivateClumsy(20f);
+                    TrapManager?.ActivateConfused(15f);
                     break;
                 case 302:
                     TrapManager?.ActivateButterfingers(10f);
@@ -520,6 +564,7 @@ namespace GooseGameAP
             HasGoldenBell = false;
             Client?.ClearReceivedItems();
             checkedLocations.Clear();
+            TrapManager?.ClearTraps();  // Also clears and saves progressive items
             ClearSavedAccessFlags();
         }
         
@@ -570,8 +615,13 @@ namespace GooseGameAP
             PlayerPrefs.DeleteKey("AP_Pub");
             PlayerPrefs.DeleteKey("AP_ModelVillage");
             PlayerPrefs.DeleteKey("AP_GoldenBell");
+            PlayerPrefs.DeleteKey("AP_LastItemIndex");  // Reset item tracking
+            PlayerPrefs.DeleteKey("AP_SpeedyFeet");     // Reset progressive items
+            PlayerPrefs.DeleteKey("AP_MegaHonk");
+            PlayerPrefs.DeleteKey("AP_GooseDays");
+            PlayerPrefs.DeleteKey("AP_SilentSteps");
             PlayerPrefs.Save();
-            Log.LogInfo("[CLEAR] Saved access flags cleared");
+            Log.LogInfo("[CLEAR] All saved state cleared");
         }
         
         // === COROUTINES ===

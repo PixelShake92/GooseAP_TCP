@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GooseGameAP
 {
     /// <summary>
-    /// Handles all trap effects: Butterfingers, Suspicious, Tired, Clumsy
+    /// Handles all trap effects: Butterbeak, Suspicious, Tired, Confused Feet
     /// Also handles buff effects: Speedy Feet, Goose Day
     /// </summary>
     public class TrapManager
@@ -18,6 +18,7 @@ namespace GooseGameAP
         private float butterFingersTimer = 0f;
         private float suspiciousTimer = 0f;
         private float suspiciousHonkTimer = 0f;
+        private float confusedTimer = 0f;
         
         // Buff timers
         private float gooseDayTimer = 0f;
@@ -29,9 +30,14 @@ namespace GooseGameAP
         
         // Trap states
         private bool isTired = false;
-        private bool isClumsy = false;
+        private bool isConfused = false;
         private bool hasButterfingers = false;
         private bool isSuspicious = false;
+        
+        // Confused Feet - random direction rotation
+        private float confusedAngle = 180f;  // Start with inverted (180 degrees)
+        private float confusedShuffleTimer = 0f;
+        private const float CONFUSED_SHUFFLE_INTERVAL = 5.0f;
         
         // Buff states
         private bool hasGooseDay = false;
@@ -51,7 +57,7 @@ namespace GooseGameAP
         
         public bool HasButterfingers => hasButterfingers;
         public bool IsTired => isTired;
-        public bool IsClumsy => isClumsy;
+        public bool IsConfused => isConfused;
         public bool IsSuspicious => isSuspicious;
         public bool HasGooseDay => hasGooseDay;
         public int StoredGooseDays => storedGooseDays;
@@ -59,6 +65,37 @@ namespace GooseGameAP
         public TrapManager(Plugin plugin)
         {
             this.plugin = plugin;
+            LoadProgressiveItems();
+        }
+        
+        /// <summary>
+        /// Load progressive item counts from PlayerPrefs
+        /// </summary>
+        private void LoadProgressiveItems()
+        {
+            SpeedyFeetCount = Math.Min(PlayerPrefs.GetInt("AP_SpeedyFeet", 0), 10);  // Max 10
+            MegaHonkCount = Math.Min(PlayerPrefs.GetInt("AP_MegaHonk", 0), 3);       // Max 3
+            storedGooseDays = Math.Min(PlayerPrefs.GetInt("AP_GooseDays", 0), MAX_GOOSE_DAYS);  // Max 3
+            IsSilent = PlayerPrefs.GetInt("AP_SilentSteps", 0) == 1;
+            Plugin.Log?.LogInfo($"[LOAD] Progressive items: Speedy={SpeedyFeetCount}, Honk={MegaHonkCount}, GooseDays={storedGooseDays}, Silent={IsSilent}");
+        }
+        
+        /// <summary>
+        /// Save progressive item counts to PlayerPrefs
+        /// </summary>
+        public void SaveProgressiveItems()
+        {
+            // Clamp values before saving
+            SpeedyFeetCount = Math.Min(SpeedyFeetCount, 10);
+            MegaHonkCount = Math.Min(MegaHonkCount, 3);
+            storedGooseDays = Math.Min(storedGooseDays, MAX_GOOSE_DAYS);
+            
+            PlayerPrefs.SetInt("AP_SpeedyFeet", SpeedyFeetCount);
+            PlayerPrefs.SetInt("AP_MegaHonk", MegaHonkCount);
+            PlayerPrefs.SetInt("AP_GooseDays", storedGooseDays);
+            PlayerPrefs.SetInt("AP_SilentSteps", IsSilent ? 1 : 0);
+            PlayerPrefs.Save();
+            Plugin.Log?.LogInfo($"[SAVE] Progressive items: Speedy={SpeedyFeetCount}, Honk={MegaHonkCount}, GooseDays={storedGooseDays}, Silent={IsSilent}");
         }
         
         public float GetEffectiveSpeedMultiplier()
@@ -67,9 +104,7 @@ namespace GooseGameAP
             if (isTired)
                 return 0.5f;
             
-            // Clumsy = 70% speed  
-            if (isClumsy)
-                return 0.7f;
+            // Confused Feet doesn't affect speed - it scrambles direction instead
                 
             // Speedy Feet: 5% speed per item, capped at 50% bonus (10 items)
             float bonus = SpeedyFeetCount * 0.05f;
@@ -79,17 +114,17 @@ namespace GooseGameAP
         
         public string GetActiveTrapText()
         {
-            if (!isTired && !isClumsy && !hasButterfingers && !isSuspicious && !hasGooseDay && storedGooseDays == 0 && SpeedyFeetCount == 0 && MegaHonkCount == 0 && !IsSilent)
+            if (!isTired && !isConfused && !hasButterfingers && !isSuspicious && !hasGooseDay && storedGooseDays == 0 && SpeedyFeetCount == 0 && MegaHonkCount == 0 && !IsSilent)
                 return null;
             
             string trapText = "";
             if (isTired) trapText += "TIRED(" + trapTimer.ToString("F0") + "s) ";
-            if (isClumsy) trapText += "CLUMSY(" + trapTimer.ToString("F0") + "s) ";
-            if (hasButterfingers) trapText += "BUTTERFINGERS(" + butterFingersTimer.ToString("F0") + "s) ";
+            if (isConfused) trapText += "CONFUSED(" + confusedTimer.ToString("F0") + "s|" + confusedAngle + "°) ";
+            if (hasButterfingers) trapText += "BUTTERBEAK(" + butterFingersTimer.ToString("F0") + "s) ";;
             if (isSuspicious) trapText += "SUSPICIOUS(" + suspiciousTimer.ToString("F0") + "s) ";
             if (hasGooseDay) trapText += "GOOSE DAY(" + gooseDayTimer.ToString("F0") + "s) ";
             if (storedGooseDays > 0 && !hasGooseDay) trapText += "GOOSE DAY[G](" + storedGooseDays + ") ";
-            if (SpeedyFeetCount > 0 && !isTired && !isClumsy) 
+            if (SpeedyFeetCount > 0 && !isTired) 
             {
                 int bonus = System.Math.Min(SpeedyFeetCount * 5, 50);
                 trapText += "SPEEDY(+" + bonus + "%) ";
@@ -110,18 +145,42 @@ namespace GooseGameAP
             plugin.UI.ShowNotification("TIRED GOOSE! Slowed for " + duration + "s!");
         }
         
-        public void ActivateClumsy(float duration = 20f)
+        public void ActivateConfused(float duration = 15f)
         {
-            isClumsy = true;
-            trapTimer = duration;
-            plugin.UI.ShowNotification("CLUMSY FEET! Stumbling for " + duration + "s!");
+            isConfused = true;
+            confusedTimer = duration;
+            confusedShuffleTimer = CONFUSED_SHUFFLE_INTERVAL;  // First shuffle after 5s
+            ShuffleConfusedAngle();  // Set initial random angle
+            Log.LogInfo("[CONFUSED] Controls scrambled!");
+            plugin.UI.ShowNotification("CONFUSED FEET! Controls scrambled for " + duration + "s!");
+        }
+        
+        /// <summary>
+        /// Randomize the confusion angle - picks angles that feel different from normal
+        /// </summary>
+        private void ShuffleConfusedAngle()
+        {
+            // Random angle between 90-270 degrees (avoids 0 which feels normal)
+            int[] angles = { 90, 120, 150, 180, 210, 240, 270 };
+            confusedAngle = angles[UnityEngine.Random.Range(0, angles.Length)];
+            Log.LogInfo($"[CONFUSED] New direction: {confusedAngle} degrees");
+            plugin.UI.ShowNotification($"DIRECTIONS SHIFTED!");
+        }
+        
+        /// <summary>
+        /// Get current confusion angle for input rotation
+        /// </summary>
+        public float GetConfusionAngle()
+        {
+            return isConfused ? confusedAngle : 0f;
         }
         
         public void ActivateButterfingers(float duration = 10f)
         {
             hasButterfingers = true;
             butterFingersTimer = duration;
-            plugin.UI.ShowNotification("BUTTERFINGERS! Can't hold items for " + duration + "s!");
+            plugin.UI.ShowNotification("BUTTERBEAK! Can't hold items for " + duration + "s!");
+            ForceDropItems();
         }
         
         public void ActivateSuspicious(float duration = 10f)
@@ -138,6 +197,7 @@ namespace GooseGameAP
             if (storedGooseDays < MAX_GOOSE_DAYS)
             {
                 storedGooseDays++;
+                SaveProgressiveItems();
                 Log.LogInfo($"[GOOSE DAY] Stored! Now have {storedGooseDays}/{MAX_GOOSE_DAYS}");
                 plugin.UI.ShowNotification($"Goose Day stored! ({storedGooseDays}/{MAX_GOOSE_DAYS}) - Press G to use");
             }
@@ -168,6 +228,7 @@ namespace GooseGameAP
             }
             
             storedGooseDays--;
+            SaveProgressiveItems();
             Log.LogInfo($"[GOOSE DAY] Using! {storedGooseDays} remaining");
             
             hasGooseDay = true;
@@ -195,9 +256,9 @@ namespace GooseGameAP
         
         public void ClearTraps()
         {
-            bool hadTraps = isTired || isClumsy || hasButterfingers || isSuspicious || hasGooseDay || SpeedyFeetCount > 0 || MegaHonkCount > 0 || IsSilent;
+            bool hadTraps = isTired || isConfused || hasButterfingers || isSuspicious || hasGooseDay || SpeedyFeetCount > 0 || MegaHonkCount > 0 || IsSilent;
             isTired = false;
-            isClumsy = false;
+            isConfused = false;
             hasButterfingers = false;
             isSuspicious = false;
             hasGooseDay = false;
@@ -205,11 +266,14 @@ namespace GooseGameAP
             suspiciousTimer = 0f;
             gooseDayTimer = 0f;
             trapTimer = 0f;
+            confusedTimer = 0f;
+            confusedAngle = 0f;
             // Reset permanent upgrades too (for debug)
             SpeedyFeetCount = 0;
             MegaHonkCount = 0;
             IsSilent = false;
             // Note: Don't clear storedGooseDays - those are intentionally saved
+            SaveProgressiveItems();
             
             if (hadTraps)
                 plugin.UI.ShowNotification("All effects cleared!");
@@ -224,7 +288,30 @@ namespace GooseGameAP
                 if (trapTimer <= 0)
                 {
                     isTired = false;
-                    isClumsy = false;
+                    plugin.UI.ShowNotification("Tiredness wore off!");
+                }
+            }
+            
+            // Handle confused feet - inverted controls
+            if (confusedTimer > 0)
+            {
+                confusedTimer -= Time.deltaTime;
+                confusedShuffleTimer -= Time.deltaTime;
+                
+                // Shuffle direction every 5 seconds
+                if (confusedShuffleTimer <= 0 && confusedTimer > 0)
+                {
+                    ShuffleConfusedAngle();
+                    confusedShuffleTimer = CONFUSED_SHUFFLE_INTERVAL;
+                }
+                
+                if (confusedTimer <= 0)
+                {
+                    isConfused = false;
+                    confusedAngle = 0f;
+                    MoverPatches.ResetDiag();
+                    GooseGetStickAimPatch.ResetLog();
+                    plugin.UI.ShowNotification("Controls restored!");
                 }
             }
             
@@ -237,7 +324,7 @@ namespace GooseGameAP
                 if (butterFingersTimer <= 0)
                 {
                     hasButterfingers = false;
-                    plugin.UI.ShowNotification("Butterfingers wore off!");
+                    plugin.UI.ShowNotification("Butterbeak wore off!");
                 }
             }
             
@@ -303,7 +390,7 @@ namespace GooseGameAP
                             if (dropMethod != null)
                             {
                                 dropMethod.Invoke(holder, null);
-                                Log.LogInfo("[BUTTERFINGERS] Forced drop (held)!");
+                                Log.LogInfo("[BUTTERBEAK] Forced drop (held)!");
                             }
                         }
                         catch { }
@@ -333,7 +420,7 @@ namespace GooseGameAP
                                 if (dropMethod != null)
                                 {
                                     dropMethod.Invoke(dragger, null);
-                                    Log.LogInfo("[BUTTERFINGERS] Forced drop (dragged)!");
+                                    Log.LogInfo("[BUTTERBEAK] Forced drop (dragged)!");
                                 }
                                 else
                                 {
@@ -346,12 +433,12 @@ namespace GooseGameAP
                                     if (releaseMethod != null)
                                     {
                                         releaseMethod.Invoke(dragger, null);
-                                        Log.LogInfo("[BUTTERFINGERS] Forced release (dragged)!");
+                                        Log.LogInfo("[BUTTERBEAK] Forced release (dragged)!");
                                     }
                                     else if (activeField != null)
                                     {
                                         activeField.SetValue(dragger, false);
-                                        Log.LogInfo("[BUTTERFINGERS] Set drag active=false!");
+                                        Log.LogInfo("[BUTTERBEAK] Set drag active=false!");
                                     }
                                 }
                             }

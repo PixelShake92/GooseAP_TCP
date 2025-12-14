@@ -49,8 +49,8 @@ namespace GooseGameAP
                 case 202: return "Silent Steps";
                 case 203: return "A Goose Day";
                 case 300: return "Tired Goose";
-                case 301: return "Clumsy Feet";
-                case 302: return "Butterfingers";
+                case 301: return "Confused Feet";
+                case 302: return "Butterbeak";
                 case 303: return "Suspicious Goose";
                 case 999: return "Golden Bell";
                 default: return "Unknown Item (" + offset + ")";
@@ -172,10 +172,41 @@ namespace GooseGameAP
                 case "carrot_13": return BASE_ID + 1413;  // Shop carrot
             }
             
+            // Check for renamed pub tomatoes (pubtomato_1 through pubtomato_11)
+            switch (lowerName)
+            {
+                case "pubtomato_1": return BASE_ID + 1421;
+                case "pubtomato_2": return BASE_ID + 1422;
+                case "pubtomato_3": return BASE_ID + 1423;
+                case "pubtomato_4": return BASE_ID + 1424;
+                case "pubtomato_5": return BASE_ID + 1425;
+                case "pubtomato_6": return BASE_ID + 1426;
+                case "pubtomato_7": return BASE_ID + 1427;
+                case "pubtomato_8": return BASE_ID + 1428;
+                case "pubtomato_9": return BASE_ID + 1429;
+                case "pubtomato_10": return BASE_ID + 1430;
+                case "pubtomato_11": return BASE_ID + 1431;
+            }
+            
+            // Check for renamed boots (boot_1 at Garden start, boot_2 in Hub near dummyprop)
+            switch (lowerName)
+            {
+                case "boot_1": return BASE_ID + 1440;  // Garden/start area boot
+                case "boot_2": return BASE_ID + 1441;  // Hub boot (near dummyprop)
+            }
+            
+            // Check for renamed topsoil bags (top_1, top_2, top_3)
+            switch (lowerName)
+            {
+                case "top_1": return BASE_ID + 1450;
+                case "top_2": return BASE_ID + 1451;
+                case "top_3": return BASE_ID + 1452;
+            }
+            
             switch (lowerName)
             {
                 // Garden items (1001-1020)
-                case "boot": return BASE_ID + 1001;
+                case "boot": return BASE_ID + 1001;  // Fallback for unrenamed boot
                 case "radiosmall": return BASE_ID + 1002;
                 case "trowel": return BASE_ID + 1003;
                 case "keys": return BASE_ID + 1004;
@@ -267,7 +298,7 @@ namespace GooseGameAP
                 case "fishingbobberprop": return BASE_ID + 1101;
                 case "exitletterprop":
                 case "exitletter": return BASE_ID + 1102;
-                case "pubtomato": return BASE_ID + 1103;
+                case "pubtomato": return BASE_ID + 1103;  // Fallback for unrenamed pub tomato
                 case "plate": return BASE_ID + 1104;
                 case "plate (1)": return BASE_ID + 1105;
                 case "plate (2)": return BASE_ID + 1106;
@@ -331,12 +362,17 @@ namespace GooseGameAP
             Log.LogInfo("[DRAG LOOKUP] Raw: '" + itemName + "' | Cleaned: '" + lowerName + "'");
             
             // Check for unique tracked items FIRST (before stripping underscore suffix)
-            // Umbrellas: umbrella_1, umbrella_2, umbrella_3
+            // Umbrellas: umbrella_1 (black), umbrella_2 (rainbow), umbrella_3 (red)
             switch (lowerName)
             {
-                case "umbrella_1": return BASE_ID + 1221;  // First umbrella
-                case "umbrella_2": return BASE_ID + 1228;  // Second umbrella  
-                case "umbrella_3": return BASE_ID + 1229;  // Third umbrella
+                case "umbrella_1": return BASE_ID + 1221;  // Black umbrella
+                case "umbrella_2": return BASE_ID + 1228;  // Rainbow umbrella  
+                case "umbrella_3": return BASE_ID + 1229;  // Red umbrella
+                
+                // Topsoil bags
+                case "top_1": return BASE_ID + 1450;
+                case "top_2": return BASE_ID + 1451;
+                case "top_3": return BASE_ID + 1452;
             }
             
             // Strip trailing numbers after underscore for non-tracked items (e.g., "item_1" -> "item")
@@ -356,7 +392,7 @@ namespace GooseGameAP
                 case "rake": return BASE_ID + 1201;
                 case "basket": return BASE_ID + 1202;
                 case "coolbox": return BASE_ID + 1203;
-                case "top": return BASE_ID + 1204;  // topsoil bag
+                case "top": return BASE_ID + 1204;  // Fallback for unrenamed topsoil bag
                 case "shovel": return BASE_ID + 1205;
                 case "pumpkin": return BASE_ID + 1206;
                 case "pumpkin (2)": return BASE_ID + 1207;
@@ -438,22 +474,33 @@ namespace GooseGameAP
                 // High Street interactions (1310-1317)
                 case "BreakBoards": return BASE_ID + 1310;   // Break through fence boards
                 case "UnplugRadio": return BASE_ID + 1311;   // Unplug the radio
-                case "UmbrellaStand1": return BASE_ID + 1313; // Open umbrella on stand 1
-                case "UmbrellaStand2": return BASE_ID + 1314; // Open umbrella on stand 2
-                case "UmbrellaStand3": return BASE_ID + 1315; // Open umbrella on stand 3
+                case "UmbrellaStand1": return BASE_ID + 1313; // Open black umbrella
+                case "UmbrellaStand2": return BASE_ID + 1315; // Open red umbrella
+                case "UmbrellaStand3": return BASE_ID + 1314; // Open rainbow umbrella
                 case "WimpLacesLeft": return BASE_ID + 1316;  // Untie boy's left laces
                 case "WimpLacesRight": return BASE_ID + 1317; // Untie boy's right laces
                 
                 // Back Gardens interactions (1320-1325)
                 case "GardenBell": return BASE_ID + 1320;    // Ring big bell (makes man spit tea)
-                case "WindChimes": return BASE_ID + 1321;    // Play wind chimes
+                case "WindChimes": return BASE_ID + 1321;    // Fallback for wind chimes
                 case "Windmill": return BASE_ID + 1322;      // Spin the windmill
-                case "SpinFlower": return BASE_ID + 1323;    // Spin the purple flower
+                case "SpinPurpleFlower": return BASE_ID + 1323;  // Spin the purple flower
                 case "BreakTrellis": return BASE_ID + 1324;  // Break through trellis fence
+                case "SpinSunflower": return BASE_ID + 1325; // Spin the sunflower
+                case "SpinFlower": return BASE_ID + 1323;    // Fallback (maps to purple)
+                
+                // Wind Chimes individual notes (1340-1346) - left to right: G, F, E, D, C, B, A
+                case "WindChimeG": return BASE_ID + 1340;    // Leftmost chime
+                case "WindChimeF": return BASE_ID + 1341;
+                case "WindChimeE": return BASE_ID + 1342;
+                case "WindChimeD": return BASE_ID + 1343;
+                case "WindChimeC": return BASE_ID + 1344;
+                case "WindChimeB": return BASE_ID + 1345;
+                case "WindChimeA": return BASE_ID + 1346;    // Rightmost chime
                 
                 // Pub interactions (1330-1339)
-                case "VanDoorLeft": return BASE_ID + 1330;   // Open van door (left)
-                case "VanDoorRight": return BASE_ID + 1331;  // Open van door (right)
+                case "VanDoorLeft": return BASE_ID + 1330;   // Close van door (left)
+                case "VanDoorRight": return BASE_ID + 1331;  // Close van door (right)
                 case "BurlyLacesLeft": return BASE_ID + 1332; // Untie burly man's left laces
                 case "BurlyLacesRight": return BASE_ID + 1333; // Untie burly man's right laces
                 case "PubTap": return BASE_ID + 1334;        // Turn on pub sink tap

@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using BepInEx.Logging;
+using UnityEngine;
 
 namespace GooseGameAP
 {
@@ -25,7 +26,7 @@ namespace GooseGameAP
         private const int LOCAL_PROXY_PORT = 38282;
         
         private Queue<string> messageQueue = new Queue<string>();
-        private HashSet<long> receivedItemIds = new HashSet<long>();
+        private int lastProcessedIndex = -1;  // Track last processed item index, not IDs
         private int playerSlot = 0;
         
         public bool IsConnected { get; private set; } = false;
@@ -202,7 +203,10 @@ namespace GooseGameAP
         
         public void ClearReceivedItems()
         {
-            receivedItemIds.Clear();
+            lastProcessedIndex = -1;
+            PlayerPrefs.SetInt("AP_LastItemIndex", -1);
+            PlayerPrefs.Save();
+            Log.LogInfo("Reset lastProcessedIndex to -1");
         }
         
         private void ReceiveLoop(string slot, string password, bool deathLinkEnabled, string serverAddress, string serverPort)
@@ -256,13 +260,17 @@ namespace GooseGameAP
                 // Reload access flags from disk first - in case they were saved but not in memory
                 plugin.ReloadAccessFlags();
                 
-                // Clear and prepare for fresh sync
-                receivedItemIds.Clear();
-                Log.LogInfo("Cleared receivedItemIds for fresh sync from AP");
+                // Load last processed index from persistence
+                lastProcessedIndex = PlayerPrefs.GetInt("AP_LastItemIndex", -1);
+                Log.LogInfo($"Loaded lastProcessedIndex: {lastProcessedIndex}");
                 
+                // IMMEDIATELY queue a gate sync using saved flags
+                // This ensures gates work even if AP doesn't resend items
                 GateSyncTimer = 0f;
                 GateSyncAttempts = 0;
-                PendingGateSync = false;
+                PendingGateSync = true;  // Start syncing now with saved flags
+                Log.LogInfo("Queued immediate gate sync from saved access flags");
+                
                 WaitingForReceivedItems = true;
                 ReceivedItemsTimeout = 0f;
                 
@@ -311,8 +319,26 @@ namespace GooseGameAP
         private void ParseReceivedItems(string data)
         {
             Log.LogInfo("=== PARSING RECEIVED ITEMS ===");
+            Log.LogInfo($"Current lastProcessedIndex: {lastProcessedIndex}");
+            
+            // Parse the starting index from the message
+            int startingIndex = 0;
+            int indexPos = data.IndexOf("\"index\":");
+            if (indexPos > 0)
+            {
+                int start = indexPos + 8;
+                int end = data.IndexOf(",", start);
+                if (end > start)
+                {
+                    string indexStr = data.Substring(start, end - start).Trim();
+                    int.TryParse(indexStr, out startingIndex);
+                }
+            }
+            Log.LogInfo($"ReceivedItems starting index: {startingIndex}");
+            
             int itemCount = 0;
             int pos = 0;
+            int currentIndex = startingIndex;
             
             while ((pos = data.IndexOf("\"item\":", pos + 1)) > 0)
             {
@@ -327,19 +353,30 @@ namespace GooseGameAP
                     {
                         itemCount++;
                         string itemName = LocationMappings.GetItemName(itemId);
-                        Log.LogInfo("[RECEIVED] Item: " + itemName + " (ID: " + itemId + ")");
                         
-                        if (!receivedItemIds.Contains(itemId))
+                        // Only process items we haven't seen yet (by index)
+                        if (currentIndex > lastProcessedIndex)
                         {
-                            receivedItemIds.Add(itemId);
+                            Log.LogInfo($"[RECEIVED NEW] Index {currentIndex}: {itemName} (ID: {itemId})");
                             plugin.UI.AddReceivedItem(itemName);
                             plugin.UI.AddChatMessage("Got: " + itemName);
                             plugin.ProcessReceivedItem(itemId);
+                            
+                            // Update last processed index
+                            lastProcessedIndex = currentIndex;
+                            PlayerPrefs.SetInt("AP_LastItemIndex", lastProcessedIndex);
+                            PlayerPrefs.Save();
                         }
+                        else
+                        {
+                            Log.LogInfo($"[RECEIVED SKIP] Index {currentIndex}: {itemName} (already processed)");
+                        }
+                        
+                        currentIndex++;
                     }
                 }
             }
-            Log.LogInfo("=== RECEIVED " + itemCount + " ITEMS TOTAL ===");
+            Log.LogInfo($"=== RECEIVED {itemCount} ITEMS, lastProcessedIndex now {lastProcessedIndex} ===");
         }
     }
 }

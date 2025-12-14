@@ -268,7 +268,7 @@ namespace GooseGameAP
                     Plugin.Log?.LogInfo($"[SWITCH PECK] Object: {objName}, Parent: {parentName}");
                 }
                 
-                CheckInteraction(objName, parentName);
+                CheckInteraction(__instance, objName, parentName);
                 CheckLacesInteraction(__instance, objName, parentName);
             }
             catch (Exception ex)
@@ -297,7 +297,7 @@ namespace GooseGameAP
                     Plugin.Log?.LogInfo($"[SWITCH SETSTATE] Object: {objName}, Parent: {parentName}");
                 }
                 
-                CheckInteraction(objName, parentName);
+                CheckInteraction(__instance, objName, parentName);
                 CheckLacesInteraction(__instance, objName, parentName);
             }
             catch (Exception ex)
@@ -309,7 +309,7 @@ namespace GooseGameAP
         /// <summary>
         /// Check if a switch interaction matches our tracked interactions
         /// </summary>
-        private static void CheckInteraction(string objName, string parentName)
+        private static void CheckInteraction(SwitchSystem instance, string objName, string parentName)
         {
             string objLower = objName.ToLower();
             string parentLower = parentName.ToLower();
@@ -362,22 +362,22 @@ namespace GooseGameAP
                 Plugin.Instance?.InteractionTracker?.OnInteraction("BreakBoards");
             }
             
-            // Umbrellas on stands
-            if (parentLower == "umbrella")
+            // Umbrellas on stands - parent starts with "umbrella" (handles umbrella_1, umbrella_2, umbrella_3)
+            if (parentLower.StartsWith("umbrella"))
             {
                 if (objLower == "umbrellaonstand1")
                 {
-                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 1: {objName}");
+                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 1: {objName}, parent: {parentName}");
                     Plugin.Instance?.InteractionTracker?.OnInteraction("UmbrellaStand1");
                 }
                 else if (objLower == "umbrellaonstand2")
                 {
-                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 2: {objName}");
+                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 2: {objName}, parent: {parentName}");
                     Plugin.Instance?.InteractionTracker?.OnInteraction("UmbrellaStand2");
                 }
                 else if (objLower == "umbrellaonstand3")
                 {
-                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 3: {objName}");
+                    Plugin.Log?.LogInfo($"[INTERACT] Umbrella Stand 3: {objName}, parent: {parentName}");
                     Plugin.Instance?.InteractionTracker?.OnInteraction("UmbrellaStand3");
                 }
             }
@@ -391,11 +391,31 @@ namespace GooseGameAP
                 Plugin.Instance?.InteractionTracker?.OnInteraction("GardenBell");
             }
             
-            // Wind chimes - parent is "chimeSwitches"
+            // Wind chimes - parent is "chimeSwitches", distinguished by grandparent (chime-a through chime-g)
             if (parentLower.Contains("chime"))
             {
-                Plugin.Log?.LogInfo($"[INTERACT] Wind Chimes: {objName}");
-                Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimes");
+                // Get grandparent to distinguish between chimes
+                string grandparent = instance.transform.parent?.parent?.name?.ToLower() ?? "";
+                
+                Plugin.Log?.LogInfo($"[INTERACT] Wind Chimes: {objName}, grandparent: {grandparent}");
+                
+                // Each chime is named by musical note (a-g)
+                if (grandparent == "chime-a")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeA");
+                else if (grandparent == "chime-b")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeB");
+                else if (grandparent == "chime-c")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeC");
+                else if (grandparent == "chime-d")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeD");
+                else if (grandparent == "chime-e")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeE");
+                else if (grandparent == "chime-f")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeF");
+                else if (grandparent == "chime-g")
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimeG");
+                else
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("WindChimes"); // Fallback
             }
             
             // Windmill - switchsystem with parent "Plane"
@@ -405,11 +425,35 @@ namespace GooseGameAP
                 Plugin.Instance?.InteractionTracker?.OnInteraction("Windmill");
             }
             
-            // Spinny Flower - switch with parent "Circle"
+            // Spinny Flowers - switch with parent "Circle", distinguished by grandparent
             if (parentLower == "circle" && objLower == "switch")
             {
-                Plugin.Log?.LogInfo($"[INTERACT] Flower: {objName}");
-                Plugin.Instance?.InteractionTracker?.OnInteraction("SpinFlower");
+                // Get grandparent to distinguish between flowers
+                string grandparentName = "";
+                if (instance.transform.parent?.parent != null)
+                {
+                    grandparentName = instance.transform.parent.parent.name.ToLower();
+                }
+                
+                Plugin.Log?.LogInfo($"[INTERACT] Flower: {objName}, grandparent: {grandparentName}");
+                
+                // Distinguish by grandparent name
+                // fakeflowerpointy = sunflower (pointy petals)
+                // fakeflowerround = purple flower (round petals)
+                if (grandparentName.Contains("pointy"))
+                {
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("SpinSunflower");
+                }
+                else if (grandparentName.Contains("round"))
+                {
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("SpinPurpleFlower");
+                }
+                else
+                {
+                    // Fallback - log grandparent for debugging
+                    Plugin.Log?.LogInfo($"[INTERACT] Unknown flower grandparent: {grandparentName}");
+                    Plugin.Instance?.InteractionTracker?.OnInteraction("SpinFlower");
+                }
             }
             
             // Trellis/fence to messy neighbour
@@ -513,43 +557,106 @@ namespace GooseGameAP
     [HarmonyPatch]
     public static class MoverPatches
     {
+        // Cache reflection fields
+        private static System.Reflection.FieldInfo rbField = null;
+        private static bool fieldsInitialized = false;
+        
+        private static void InitFields()
+        {
+            if (fieldsInitialized) return;
+            
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+            rbField = typeof(Mover).GetField("rb", flags);
+            fieldsInitialized = true;
+        }
+        
         /// <summary>
-        /// Scale goose velocity after FixedUpdate applies it
-        /// We patch FixedUpdate instead of Update because:
-        /// - Update's currentSpeed calculation uses previous currentSpeed in Clamp bounds
-        /// - Modifying currentSpeed causes compounding
-        /// - FixedUpdate sets rb.velocity fresh from currentSpeed each time
+        /// Apply speed multiplier only
         /// </summary>
         [HarmonyPatch(typeof(Mover), "FixedUpdate")]
         [HarmonyPostfix]
-        static void ScaleVelocity(Mover __instance)
+        static void ApplySpeedMultiplier(Mover __instance)
         {
             try
             {
                 if (__instance == null) return;
                 
-                float multiplier = Plugin.Instance?.TrapManager?.GetEffectiveSpeedMultiplier() ?? 1.0f;
-                if (System.Math.Abs(multiplier - 1.0f) < 0.001f) return;
-                
-                // Get rigidbody via reflection (it's private)
-                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-                var rbField = typeof(Mover).GetField("rb", flags);
+                InitFields();
                 if (rbField == null) return;
+                
+                var trapManager = Plugin.Instance?.TrapManager;
+                if (trapManager == null) return;
+                
+                float multiplier = trapManager.GetEffectiveSpeedMultiplier();
+                
+                if (System.Math.Abs(multiplier - 1.0f) < 0.001f) 
+                    return;
                 
                 var rb = rbField.GetValue(__instance) as Rigidbody;
                 if (rb == null) return;
                 
-                // Scale horizontal velocity only (preserve Y for gravity/jumping)
                 Vector3 vel = rb.velocity;
                 float y = vel.y;
                 vel.x *= multiplier;
                 vel.z *= multiplier;
                 vel.y = y;
+                
                 rb.velocity = vel;
             }
             catch { }
         }
+        
+        public static void ResetDiag() { }
     }
+    
+    /// <summary>
+    /// Confused Feet - Patch GetStickAim to return rotated input
+    /// This is what Mover calls to get movement direction!
+    /// </summary>
+    [HarmonyPatch(typeof(Goose), "GetStickAim")]
+    public static class GooseGetStickAimPatch
+    {
+        private static float lastLogTime = 0f;
+        
+        [HarmonyPostfix]
+        static void RotateStickAim(ref Vector3 __result)
+        {
+            try
+            {
+                var trapManager = Plugin.Instance?.TrapManager;
+                if (trapManager == null || !trapManager.IsConfused) return;
+                
+                float angle = trapManager.GetConfusionAngle();
+                if (System.Math.Abs(angle) < 0.01f) return;
+                
+                // Rotate the input by the confusion angle
+                float rad = angle * Mathf.Deg2Rad;
+                float cos = Mathf.Cos(rad);
+                float sin = Mathf.Sin(rad);
+                
+                float newX = __result.x * cos - __result.z * sin;
+                float newZ = __result.x * sin + __result.z * cos;
+                
+                __result.x = newX;
+                __result.z = newZ;
+                
+                if (Time.time - lastLogTime > 2.0f && __result.sqrMagnitude > 0.01f)
+                {
+                    lastLogTime = Time.time;
+                    Plugin.Log?.LogInfo($"[CONFUSED] Input rotated by {angle}°");
+                }
+            }
+            catch { }
+        }
+        
+        public static void ResetLog() { lastLogTime = 0f; }
+    }
+    
+    /// <summary>
+    /// Note: Confused Feet uses velocity inversion in MoverPatches.
+    /// stickAim inversion was tried but didn't affect movement direction.
+    /// Velocity inversion works but causes sliding (no walk animation).
+    /// </summary>
     
     /// <summary>
     /// Goose Day effect - blocks NPC perception of the goose
@@ -838,7 +945,28 @@ namespace GooseGameAP
         }
     }
     
-    // NOTE: Butterfingers effect is handled by TrapManager forcing drops
-    // The Holder.Grab and Dragger.Grab patches were removed because
-    // those method signatures don't exist in this game version
+    // NOTE: Butterbeak effect - beak pickups already blocked elsewhere
+    // This patch blocks dragging items during Butterbeak
+    
+    /// <summary>
+    /// Block starting to drag items during Butterbeak
+    /// </summary>
+    [HarmonyPatch(typeof(Dragger), "PickUp")]
+    public static class DraggerButterbeakPatch
+    {
+        [HarmonyPrefix]
+        static bool BlockPickUp()
+        {
+            try
+            {
+                if (Plugin.Instance?.TrapManager?.HasButterfingers == true)
+                {
+                    Plugin.Log?.LogInfo("[BUTTERBEAK] Blocked drag PickUp!");
+                    return false; // Skip original - can't pick up
+                }
+            }
+            catch { }
+            return true;
+        }
+    }
 }

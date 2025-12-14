@@ -18,6 +18,7 @@ namespace GooseGameAP
         private static readonly Dictionary<string, string[]> AreaGates = new Dictionary<string, string[]>
         {
             { "HighStreet", new[] { 
+                // The tall gate the groundskeeper hammers - this is fine to open
                 "gardenDynamic/GROUP_Hammering/gateTall/gateTallOpenSystem",
                 "overworldStatic/GROUP_Hub/HallToHubGateSystem/HallToHubGateMainSystem",
                 "overworldStatic/GROUP_Hub/HallToHubGateSystem/HallToHubGateLockSystem"
@@ -35,11 +36,9 @@ namespace GooseGameAP
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate",
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate/gateMetal",
                 "overworldStatic/GROUP_ParkToPub/FinaleToParkGateSystem"
-            }},
-            { "Garden", new[] {
-                // Only the actual garden entrance gate - NOT hub-side systems
-                "gardenDynamic/GROUP_Gate/GardenGate/GateSystem"
             }}
+            // NOTE: Garden not listed - we only disable colliders, don't open the gate
+            // This preserves the "Lock the Groundskeeper out" checklist item
         };
         
         public GateManager(Plugin plugin)
@@ -131,10 +130,13 @@ namespace GooseGameAP
             // Disable area-specific invisible blockers
             DisableAreaBlockers(areaName);
 
-            // Directly manipulate gate objects
-            foreach (string gatePath in AreaGates[areaName])
+            // Directly manipulate gate objects (if any are defined for this area)
+            if (AreaGates.ContainsKey(areaName))
             {
-                ProcessGate(gatePath, areaName);
+                foreach (string gatePath in AreaGates[areaName])
+                {
+                    ProcessGate(gatePath, areaName);
+                }
             }
         }
         
@@ -145,7 +147,7 @@ namespace GooseGameAP
             // and change NPC behaviors unexpectedly
             switch (areaName)
             {
-                case "Garden": return new[] { "unlockGarden", "openGarden" };
+                case "Garden": return null;  // No events - only disable colliders, don't touch the gate
                 case "HighStreet": return new[] { "unlockHighStreet", "openHighStreet" };
                 case "Backyards": return new[] { "unlockBackyards", "openBackyards" };
                 case "Pub": return new[] { "unlockPub", "openPub" };
@@ -259,10 +261,8 @@ namespace GooseGameAP
                     DisableObjectByPath("overworldStatic/GROUP_Hub/PubToHubGateSystem/gateFrame");
                     break;
                 case "Garden":
-                    // Hub to Garden blockers
-                    DisableObjectByPath("overworldStatic/GROUP_Hub/HubGateSystem/InvisibleWall");
-                    DisableObjectByPath("gardenDynamic/GROUP_Gate/InvisibleWall");
-                    DisableObjectByPath("gardenDynamic/GROUP_Gate/GardenGate/GateSystem/GateExtraColliders");
+                    // No blockers disabled - GardenGate has vanilla behavior
+                    // Groundskeeper unlocks it with keys, player can close it to lock him out
                     break;
                 case "HighStreet":
                     DisableObjectByPath("gardenDynamic/GROUP_Hammering/InvisibleWall");
