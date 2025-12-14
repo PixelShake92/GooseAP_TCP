@@ -155,8 +155,8 @@ def set_rules(world: "GooseGameWorld") -> None:
             )
         )
         
-        # "Get thrown over the fence" - the box is in the hub/warp zone,
-        # but you get thrown INTO the Pub area, so need both accesses
+        # "Get thrown over the fence" - the box is in the pub
+        # but you need to get thrown over the fence in the back gardens.
         set_rule(
             multiworld.get_location("Get thrown over the fence", player),
             lambda state: (
