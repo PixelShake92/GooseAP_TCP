@@ -338,6 +338,7 @@ namespace GooseGameAP
                 case "miniperson": return BASE_ID + 1141;
                 case "timberhandleprop": return BASE_ID + 1142;
                 case "goldenbell": return BASE_ID + 1143;
+                case "miniperson variant - goose": return BASE_ID + 1144;
                 
                 default: 
                     Log.LogWarning("[ITEM] Unknown item not mapped: " + itemName);
@@ -438,7 +439,6 @@ namespace GooseGameAP
                 case "mopbucket": return BASE_ID + 1277;
                 case "mopprop": return BASE_ID + 1278;
                 case "infinitebox": return BASE_ID + 1279;
-                case "tomatobox": return BASE_ID + 1280;
                 
                 // Model Village drags (1290-1295)
                 case "minibenchprop": return BASE_ID + 1290;
