@@ -716,7 +716,7 @@ namespace GooseGameAP
                 case 55: return "Collect 5 Items from Shops";
                 case 56: return "Trap Shop Lady in Garage";
                 case 60: return "Get Wimp Shut in Garage";
-                case 61: return "Get Caught by Man Over Fence";
+                case 61: return "Catch an object as it's thrown over the fence";
                 case 62: return "Get Thrown Over Fence";
                 case 63: return "Dress Up Second Bust";
                 case 64: return "Score a Goal";

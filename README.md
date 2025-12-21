@@ -67,6 +67,9 @@ Actually too many to list now.
 - Pub Access
 - Model Village Access
 
+-NPC Souls
+-Object Souls
+
 ### upgrades
 - Mega Honk (Ugradable honk with final level forcing NPCs to drop their held items)
 - Speedy Feet (faster movement up to a total of 150%)

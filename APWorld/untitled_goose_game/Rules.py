@@ -145,6 +145,7 @@ def has_washing_items(state, player):
         has_soul(state, player, "Sock") 
         and has_soul(state, player, "Right Strap") 
         and has_soul(state, player, "Soap") 
+        and has_tidy_neighbour(state, player)
         and has_soul(state, player, "Slipper")
     )
 
@@ -360,7 +361,8 @@ def get_goal_rules(player):
         "Get on TV":
             lambda state: (
                 has_high_street(state, player) 
-                and has_tv_shop_owner(state, player)
+                and has_tv_shop_owner(state, player) 
+                and has_boy(state, player)
             ),
         "Break the broom":
             lambda state: (
@@ -372,7 +374,6 @@ def get_goal_rules(player):
             lambda state: (
                 has_high_street(state, player) 
                 and has_market_lady(state, player) 
-                and has_tv_shop_owner(state, player) 
                 and has_shopping_items(state, player)
             ),
         "Trap the shopkeeper in the garage":
@@ -516,6 +517,7 @@ def get_extra_goal_rules(player):
             lambda state: (
                 has_high_street(state, player) 
                 and has_tv_shop_owner(state, player) 
+                and has_boy(state, player)
                 and has_soul(state, player, "Umbrella")
             ),
         "Collect the five flowers":
@@ -548,7 +550,6 @@ def get_extra_goal_rules(player):
                 and has_messy_neighbour(state, player) 
                 and has_fancy_ladies(state, player) 
                 and has_soul(state, player, "Bow") 
-                and has_soul(state, player, "Harmonica")
             ),
         "Get thrown over the fence":
             lambda state: (
@@ -557,11 +558,16 @@ def get_extra_goal_rules(player):
                 and has_tidy_neighbour(state, player) 
                 and has_soul(state, player, "Stealth Box")
             ),
-        "Get caught by the man over the fence":
+        "Catch an object as it's thrown over the fence":
             lambda state: (
                 has_back_gardens(state, player) 
-                and has_pub(state, player) 
                 and has_tidy_neighbour(state, player)
+                and (
+                    has_soul(state, player, "Bow")
+                    or has_soul(state, player, "Cricket Ball")
+                    or has_soul(state, player, "Soap")
+                    or has_soul(state, player, "Tea Cup")
+                )
             ),
         "Steal the old man's woolen hat":
             lambda state: (
@@ -730,7 +736,9 @@ def get_pickup_rules(player):
         "Pick up Straw Hat":
             lambda state: (
                 has_garden(state, player) 
-                and has_soul(state, player, "Straw Hat")
+                and has_groundskeeper(state, player) 
+                and has_soul(state, player, "Straw Hat") 
+                and has_soul(state, player, "Tulip")
             ),
         "Pick up Drink Can":
             lambda state: (
@@ -745,6 +753,7 @@ def get_pickup_rules(player):
         "Pick up Gardener Hat":
             lambda state: (
                 has_garden(state, player) 
+                and has_groundskeeper(state, player)
                 and has_soul(state, player, "Gardener Hat")
             ),
         "Pick up Apple 2":

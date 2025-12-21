@@ -74,7 +74,7 @@ extra_locations: Dict[str, GooseGameLocationData] = {
     
     # Extra Back Gardens goals
     "Trap the boy in the garage": GooseGameLocationData(BASE_ID + 60, "Back Gardens"),
-    "Get caught by the man over the fence": GooseGameLocationData(BASE_ID + 61, "Back Gardens"),
+    "Catch an object as it's thrown over the fence": GooseGameLocationData(BASE_ID + 61, "Back Gardens"),
     "Get thrown over the fence": GooseGameLocationData(BASE_ID + 62, "Back Gardens"),
     "Dress up the bust with things from outside the back gardens": GooseGameLocationData(BASE_ID + 63, "Back Gardens"),
     "Score a goal": GooseGameLocationData(BASE_ID + 64, "Back Gardens"),
