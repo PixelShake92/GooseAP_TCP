@@ -13,9 +13,7 @@ class GooseGameLocation(Location):
 
 BASE_ID = 119000000
 
-# =============================================================================
 # GOAL LOCATIONS - Completing to-do list objectives (IDs 1-80)
-# =============================================================================
 
 location_table: Dict[str, GooseGameLocationData] = {
     # Garden (7 goals)
@@ -109,6 +107,7 @@ item_pickup_locations: Dict[str, GooseGameLocationData] = {
     "Pick up Radio": GooseGameLocationData(BASE_ID + 1002, "Garden"),
     "Pick up Trowel": GooseGameLocationData(BASE_ID + 1003, "Garden"),
     "Pick up Keys": GooseGameLocationData(BASE_ID + 1004, "Garden"),
+    "Pick up Carrot": GooseGameLocationData(BASE_ID + 1005, "Garden"),
     "Pick up Tulip": GooseGameLocationData(BASE_ID + 1006, "Garden"),
     "Pick up Apple": GooseGameLocationData(BASE_ID + 1007, "Garden"),
     "Pick up Jam": GooseGameLocationData(BASE_ID + 1008, "Garden"),
@@ -116,7 +115,6 @@ item_pickup_locations: Dict[str, GooseGameLocationData] = {
     "Pick up Thermos": GooseGameLocationData(BASE_ID + 1010, "Garden"),
     "Pick up Sandwich (Right)": GooseGameLocationData(BASE_ID + 1011, "Garden"),
     "Pick up Sandwich (Left)": GooseGameLocationData(BASE_ID + 1012, "Garden"),
-    "Pick up Garden Fork": GooseGameLocationData(BASE_ID + 1013, "Garden"),
     "Pick up Straw Hat": GooseGameLocationData(BASE_ID + 1014, "Garden"),
     "Pick up Drink Can": GooseGameLocationData(BASE_ID + 1015, "Garden"),
     "Pick up Tennis Ball": GooseGameLocationData(BASE_ID + 1016, "Garden"),
@@ -145,7 +143,7 @@ item_pickup_locations: Dict[str, GooseGameLocationData] = {
     "Pick up Cucumber 1": GooseGameLocationData(BASE_ID + 1039, "High Street"),
     "Pick up Leek 1": GooseGameLocationData(BASE_ID + 1040, "High Street"),
     "Pick up Fusilage": GooseGameLocationData(BASE_ID + 1041, "High Street"),
-    "Pick up Pint Bottle": GooseGameLocationData(BASE_ID + 1042, "Hub"),
+    "Pick up Pint Bottle": GooseGameLocationData(BASE_ID + 1042, "High Street"),
     "Pick up Spray Bottle": GooseGameLocationData(BASE_ID + 1043, "High Street"),
     "Pick up Walkie Talkie B": GooseGameLocationData(BASE_ID + 1044, "High Street"),
     "Pick up Walkie Talkie": GooseGameLocationData(BASE_ID + 1045, "High Street"),
@@ -168,7 +166,7 @@ item_pickup_locations: Dict[str, GooseGameLocationData] = {
     
     # Back Gardens items (1071-1093)
     "Pick up Bow (Blue)": GooseGameLocationData(BASE_ID + 1071, "Back Gardens"),
-    "Pick up Dummy": GooseGameLocationData(BASE_ID + 1072, "Hub"),
+    "Pick up Dummy": GooseGameLocationData(BASE_ID + 1072, "Back Gardens"),
     "Pick up Cricket Ball": GooseGameLocationData(BASE_ID + 1073, "Back Gardens"),
     "Pick up Bust Pipe": GooseGameLocationData(BASE_ID + 1074, "Back Gardens"),
     "Pick up Bust Hat": GooseGameLocationData(BASE_ID + 1075, "Back Gardens"),
@@ -232,9 +230,9 @@ item_pickup_locations: Dict[str, GooseGameLocationData] = {
     "Pick up Mini Person (Postie)": GooseGameLocationData(BASE_ID + 1139, "Model Village"),
     "Pick up Mini Person (Vest Man)": GooseGameLocationData(BASE_ID + 1140, "Model Village"),
     "Pick up Mini Person": GooseGameLocationData(BASE_ID + 1141, "Model Village"),
+    "Pick up Mini Person (Goose)": GooseGameLocationData(BASE_ID + 1144, "Model Village"),
     "Pick up Timber Handle": GooseGameLocationData(BASE_ID + 1142, "Model Village"),
     "Pick up Golden Bell": GooseGameLocationData(BASE_ID + 1143, "Model Village"),
-    "Pick up Mini Person (Goose)": GooseGameLocationData(BASE_ID + 1144, "Model Village"),
 }
 
 # =============================================================================
@@ -295,6 +293,7 @@ drag_item_locations: Dict[str, GooseGameLocationData] = {
     "Drag Mop Bucket": GooseGameLocationData(BASE_ID + 1277, "Pub"),
     "Drag Mop": GooseGameLocationData(BASE_ID + 1278, "Pub"),
     "Drag Delivery Box": GooseGameLocationData(BASE_ID + 1279, "Pub"),
+    # "Drag Burly Mans Bucket": GooseGameLocationData(BASE_ID + 1280, "Pub"),
     
     # Model Village drags (1290-1295)
     "Drag Mini Bench": GooseGameLocationData(BASE_ID + 1290, "Model Village"),
@@ -368,6 +367,9 @@ unique_item_locations: Dict[str, GooseGameLocationData] = {
     "Pick up Carrot 8": GooseGameLocationData(BASE_ID + 1408, "Garden"),
     "Pick up Carrot 9": GooseGameLocationData(BASE_ID + 1409, "Garden"),
     "Pick up Carrot 10": GooseGameLocationData(BASE_ID + 1410, "Garden"),
+    "Pick up Carrot 11": GooseGameLocationData(BASE_ID + 1411, "High Street"),  # Shop carrot
+    "Pick up Carrot 12": GooseGameLocationData(BASE_ID + 1412, "High Street"),  # Shop carrot
+    "Pick up Carrot 13": GooseGameLocationData(BASE_ID + 1413, "High Street"),  # Shop carrot
     
     # Pub Tomatoes (IDs 1421-1431)
     "Pick up Pub Tomato 1": GooseGameLocationData(BASE_ID + 1421, "Pub"),
@@ -392,10 +394,52 @@ unique_item_locations: Dict[str, GooseGameLocationData] = {
     "Drag Topsoil Bag 3": GooseGameLocationData(BASE_ID + 1452, "Garden"),
 }
 
+# Sandcastle peck locations (1350-1384) - 35 total raw pecks
+sandcastle_peck_locations: Dict[str, GooseGameLocationData] = {
+    # Doorway side - 19 pecks
+    "Peck Model Church Doorway 1": GooseGameLocationData(BASE_ID + 1350, "Model Village"),
+    "Peck Model Church Doorway 2": GooseGameLocationData(BASE_ID + 1351, "Model Village"),
+    "Peck Model Church Doorway 3": GooseGameLocationData(BASE_ID + 1352, "Model Village"),
+    "Peck Model Church Doorway 4": GooseGameLocationData(BASE_ID + 1353, "Model Village"),
+    "Peck Model Church Doorway 5": GooseGameLocationData(BASE_ID + 1354, "Model Village"),
+    "Peck Model Church Doorway 6": GooseGameLocationData(BASE_ID + 1355, "Model Village"),
+    "Peck Model Church Doorway 7": GooseGameLocationData(BASE_ID + 1356, "Model Village"),
+    "Peck Model Church Doorway 8": GooseGameLocationData(BASE_ID + 1357, "Model Village"),
+    "Peck Model Church Doorway 9": GooseGameLocationData(BASE_ID + 1358, "Model Village"),
+    "Peck Model Church Doorway 10": GooseGameLocationData(BASE_ID + 1359, "Model Village"),
+    "Peck Model Church Doorway 11": GooseGameLocationData(BASE_ID + 1360, "Model Village"),
+    "Peck Model Church Doorway 12": GooseGameLocationData(BASE_ID + 1361, "Model Village"),
+    "Peck Model Church Doorway 13": GooseGameLocationData(BASE_ID + 1362, "Model Village"),
+    "Peck Model Church Doorway 14": GooseGameLocationData(BASE_ID + 1363, "Model Village"),
+    "Peck Model Church Doorway 15": GooseGameLocationData(BASE_ID + 1364, "Model Village"),
+    "Peck Model Church Doorway 16": GooseGameLocationData(BASE_ID + 1365, "Model Village"),
+    "Peck Model Church Doorway 17": GooseGameLocationData(BASE_ID + 1366, "Model Village"),
+    "Peck Model Church Doorway 18": GooseGameLocationData(BASE_ID + 1367, "Model Village"),
+    "Peck Model Church Doorway 19": GooseGameLocationData(BASE_ID + 1368, "Model Village"),
+    # Tower side - 16 pecks
+    "Peck Model Church Tower 1": GooseGameLocationData(BASE_ID + 1369, "Model Village"),
+    "Peck Model Church Tower 2": GooseGameLocationData(BASE_ID + 1370, "Model Village"),
+    "Peck Model Church Tower 3": GooseGameLocationData(BASE_ID + 1371, "Model Village"),
+    "Peck Model Church Tower 4": GooseGameLocationData(BASE_ID + 1372, "Model Village"),
+    "Peck Model Church Tower 5": GooseGameLocationData(BASE_ID + 1373, "Model Village"),
+    "Peck Model Church Tower 6": GooseGameLocationData(BASE_ID + 1374, "Model Village"),
+    "Peck Model Church Tower 7": GooseGameLocationData(BASE_ID + 1375, "Model Village"),
+    "Peck Model Church Tower 8": GooseGameLocationData(BASE_ID + 1376, "Model Village"),
+    "Peck Model Church Tower 9": GooseGameLocationData(BASE_ID + 1377, "Model Village"),
+    "Peck Model Church Tower 10": GooseGameLocationData(BASE_ID + 1378, "Model Village"),
+    "Peck Model Church Tower 11": GooseGameLocationData(BASE_ID + 1379, "Model Village"),
+    "Peck Model Church Tower 12": GooseGameLocationData(BASE_ID + 1380, "Model Village"),
+    "Peck Model Church Tower 13": GooseGameLocationData(BASE_ID + 1381, "Model Village"),
+    "Peck Model Church Tower 14": GooseGameLocationData(BASE_ID + 1382, "Model Village"),
+    "Peck Model Church Tower 15": GooseGameLocationData(BASE_ID + 1383, "Model Village"),
+    "Peck Model Church Tower 16": GooseGameLocationData(BASE_ID + 1384, "Model Village"),
+}
+
 
 def get_all_locations(include_extra: bool = False, include_speedrun: bool = False, 
                       include_items: bool = True, include_drags: bool = True,
-                      include_interactions: bool = True, include_unique: bool = True) -> Dict[str, GooseGameLocationData]:
+                      include_interactions: bool = True, include_unique: bool = True,
+                      include_sandcastle: bool = True) -> Dict[str, GooseGameLocationData]:
     """Get locations based on options (for region creation)"""
     locations = dict(location_table)
     
@@ -418,13 +462,16 @@ def get_all_locations(include_extra: bool = False, include_speedrun: bool = Fals
     if include_unique:
         locations.update(unique_item_locations)
     
+    if include_sandcastle:
+        locations.update(sandcastle_peck_locations)
+    
     return locations
 
 
 def get_all_location_ids() -> Dict[str, int]:
     """Get ALL location name->ID mappings (for AP registration)
     
-    AP requires all possible locations registered upfront,
+    IMPORTANT: AP requires all possible locations registered upfront,
     regardless of whether they're enabled by options.
     """
     all_locs = {}
@@ -436,4 +483,5 @@ def get_all_location_ids() -> Dict[str, int]:
     all_locs.update({name: data.id for name, data in drag_item_locations.items()})
     all_locs.update({name: data.id for name, data in interaction_locations.items()})
     all_locs.update({name: data.id for name, data in unique_item_locations.items()})
+    all_locs.update({name: data.id for name, data in sandcastle_peck_locations.items()})
     return all_locs

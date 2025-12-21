@@ -3,7 +3,7 @@ from BaseClasses import Region
 from .Locations import (
     location_table, extra_locations, speedrun_locations, 
     completion_location, item_pickup_locations, drag_item_locations,
-    interaction_locations, unique_item_locations, GooseGameLocation
+    interaction_locations, unique_item_locations, sandcastle_peck_locations, GooseGameLocation
 )
 
 if TYPE_CHECKING:
@@ -97,6 +97,10 @@ def create_regions(world: "GooseGameWorld") -> None:
     if world.options.include_interactions:
         for loc_name, loc_data in interaction_locations.items():
             add_location(loc_name, loc_data.id, loc_data.region)
+    
+    # Add sandcastle peck locations (always included - core gameplay)
+    for loc_name, loc_data in sandcastle_peck_locations.items():
+        add_location(loc_name, loc_data.id, loc_data.region)
     
     # Victory condition - need the Golden Bell AND all access items to carry it home
     multiworld.completion_condition[player] = lambda state, p=player: (

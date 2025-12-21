@@ -15,6 +15,9 @@ namespace GooseGameAP
         
         public static readonly Vector3 WellPosition = new Vector3(1.0f, 1.5f, -1.5f);
         
+        // Track if finale is active - gates should close
+        public bool FinaleActive { get; private set; } = false;
+        
         private static readonly Dictionary<string, string[]> AreaGates = new Dictionary<string, string[]>
         {
             { "HighStreet", new[] { 
@@ -32,6 +35,7 @@ namespace GooseGameAP
                 "overworldStatic/GROUP_Hub/PubToHubGateSystem"
             }},
             { "Finale", new[] {
+                "pubDynamic/GROUP_BucketOnHead/binSkip_openable/switchSystem",  // The bin lid that makes the ramp
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem",
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate",
                 "pubDynamic/GROUP_BucketOnHead/PubToFinaleGateSystem/gate/gateMetal",
@@ -41,13 +45,137 @@ namespace GooseGameAP
             // This preserves the "Lock the Groundskeeper out" checklist item
         };
         
+        // Gates to close when finale starts (hub connections - all except pub)
+        // We'll find these dynamically instead of hardcoding paths
+        
         public GateManager(Plugin plugin)
         {
             this.plugin = plugin;
         }
         
+        /// <summary>
+        /// Called when the finale starts (bell grabbed from sandcastle)
+        /// </summary>
+        public void OnFinaleStart()
+        {
+            if (FinaleActive) return;
+            FinaleActive = true;
+            
+            // Close all hub gates except pub
+            CloseHubGatesForFinale();
+        }
+        
+        /// <summary>
+        /// Reset finale state (when game restarts)
+        /// </summary>
+        public void ResetFinale()
+        {
+            FinaleActive = false;
+        }
+        
+        private void CloseHubGatesForFinale()
+        {
+            var allSwitches = UnityEngine.Object.FindObjectsOfType<SwitchSystem>();
+            
+            foreach (var sw in allSwitches)
+            {
+                if (sw?.gameObject == null) continue;
+                
+                string path = GetGameObjectPath(sw.gameObject);
+                string lowerPath = path.ToLower();
+                
+                // Skip pub gates - those stay open
+                if (lowerPath.Contains("pub")) continue;
+                
+                // Handle hub gates
+                if (lowerPath.Contains("hub") && lowerPath.Contains("gate"))
+                {
+                    // Lock systems - activate them to lock the gate
+                    if (lowerPath.Contains("lock"))
+                    {
+                        sw.SetState(1, null);
+                    }
+                    // Main gate systems - close them
+                    else if (lowerPath.Contains("main"))
+                    {
+                        // Re-enable auto-closer if it exists
+                        Transform autoCloser = sw.transform.Find("autoCloser");
+                        if (autoCloser != null)
+                        {
+                            autoCloser.gameObject.SetActive(true);
+                        }
+                        
+                        sw.SetState(0, null);
+                    }
+                }
+            }
+            
+            // Re-enable hub gate blockers (except pub)
+            ReenableHubBlockers();
+        }
+        
+        private void ReenableHubBlockers()
+        {
+            // Re-enable the colliders/blockers we disabled for Hub area access
+            // These block the gaps around the gates
+            string[] hubBlockerPaths = new[]
+            {
+                // HallToHub (High Street connection)
+                "overworldStatic/GROUP_Hub/HallToHubGateSystem/gateFrame/colllidersNegScalingFlipped",
+                "overworldStatic/GROUP_Hub/HallToHubGateSystem/gateFrame",
+                // HubGate (Garden connection)  
+                "overworldStatic/GROUP_Hub/HubGateSystem/HubGateMainSystem/gateFrame",
+                // Note: NOT re-enabling PubToHubGateSystem - that stays open
+            };
+            
+            foreach (string path in hubBlockerPaths)
+            {
+                EnableObjectByPath(path);
+            }
+        }
+        
+        private void EnableObjectByPath(string path)
+        {
+            var obj = GameObject.Find(path);
+            if (obj != null)
+            {
+                obj.SetActive(true);
+                
+                // Re-enable all colliders on this object and children
+                var colliders = obj.GetComponentsInChildren<Collider>(true);
+                foreach (var col in colliders)
+                {
+                    col.enabled = true;
+                }
+            }
+            else
+            {
+                // Object might be disabled, try to find it through parent
+                string parentPath = path.Substring(0, path.LastIndexOf('/'));
+                string childName = path.Substring(path.LastIndexOf('/') + 1);
+                
+                var parentObj = GameObject.Find(parentPath);
+                if (parentObj != null)
+                {
+                    Transform child = parentObj.transform.Find(childName);
+                    if (child != null)
+                    {
+                        child.gameObject.SetActive(true);
+                        var colliders = child.GetComponentsInChildren<Collider>(true);
+                        foreach (var col in colliders)
+                        {
+                            col.enabled = true;
+                        }
+                    }
+                }
+            }
+        }
+        
         public void SyncGatesFromAccessFlags()
         {
+            // Don't reopen gates during finale
+            if (FinaleActive) return;
+            
             // Clear hub blockers first - hub should always be walkable
             DisableAreaBlockers("Hub");
             

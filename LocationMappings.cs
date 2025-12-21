@@ -38,21 +38,183 @@ namespace GooseGameAP
             long offset = itemId - BASE_ID;
             switch (offset)
             {
+                // Area Access
                 case 100: return "Garden Access";
                 case 101: return "High Street Access";
                 case 102: return "Back Gardens Access";
                 case 103: return "Pub Access";
                 case 104: return "Model Village Access";
                 case 110: return "Progressive Area";
+                
+                // NPC Souls (120-130)
+                case 120: return "Groundskeeper Soul";
+                case 121: return "Boy Soul";
+                case 122: return "TV Shop Owner Soul";
+                case 123: return "Market Lady Soul";
+                case 124: return "Tidy Neighbour Soul";
+                case 125: return "Messy Neighbour Soul";
+                case 126: return "Burly Man Soul";
+                case 127: return "Old Man Soul";
+                case 128: return "Pub Lady Soul";
+                case 129: return "Fancy Ladies Soul";
+                case 130: return "Cook Soul";
+                
+                // Filler/Useful
                 case 200: return "Mega Honk";
                 case 201: return "Speedy Feet";
                 case 202: return "Silent Steps";
                 case 203: return "A Goose Day";
+                
+                // Traps
                 case 300: return "Tired Goose";
                 case 301: return "Confused Feet";
                 case 302: return "Butterbeak";
                 case 303: return "Suspicious Goose";
+                
+                // Grouped Prop Souls (400-425)
+                case 400: return "Carrot Soul";
+                case 401: return "Tomato Soul";
+                case 402: return "Pumpkin Soul";
+                case 403: return "Topsoil Bag Soul";
+                case 404: return "Quoit Soul";
+                case 405: return "Plate Soul";
+                case 406: return "Orange Soul";
+                case 407: return "Leek Soul";
+                case 408: return "Cucumber Soul";
+                case 409: return "Dart Soul";
+                case 410: return "Umbrella Soul";
+                case 411: return "Spray Can Soul";
+                case 412: return "Sock Soul";
+                case 413: return "Pint Bottle Soul";
+                case 414: return "Knife Soul";
+                case 415: return "Gumboot Soul";
+                case 416: return "Fork Soul";
+                case 417: return "Vase Piece Soul";
+                case 418: return "Apple Core Soul";
+                case 419: return "Apple Soul";
+                case 420: return "Sandwich Soul";
+                case 421: return "Slipper Soul";
+                case 422: return "Bow Soul";
+                case 423: return "Walkie Talkie Soul";
+                case 424: return "Boot Soul";
+                case 425: return "Mini Person Soul";
+                
+                // Garden One-Off Prop Souls (500-519)
+                case 500: return "Radio Soul";
+                case 501: return "Trowel Soul";
+                case 502: return "Keys Soul";
+                case 503: return "Tulip Soul";
+                case 504: return "Jam Soul";
+                case 505: return "Picnic Mug Soul";
+                case 506: return "Thermos Soul";
+                case 507: return "Straw Hat Soul";
+                case 508: return "Drink Can Soul";
+                case 509: return "Tennis Ball Soul";
+                case 510: return "Gardener Hat Soul";
+                case 511: return "Rake Soul";
+                case 512: return "Picnic Basket Soul";
+                case 513: return "Esky Soul";
+                case 514: return "Shovel Soul";
+                case 515: return "Watering Can Soul";
+                case 516: return "Fence Bolt Soul";
+                case 517: return "Mallet Soul";
+                case 518: return "Wooden Crate Soul";
+                case 519: return "Gardener Sign Soul";
+                
+                // High Street One-Off Prop Souls (520-543)
+                case 520: return "Boy's Glasses Soul";
+                case 521: return "Horn-Rimmed Glasses Soul";
+                case 522: return "Red Glasses Soul";
+                case 523: return "Sunglasses Soul";
+                case 524: return "Toilet Paper Soul";
+                case 525: return "Toy Car Soul";
+                case 526: return "Hairbrush Soul";
+                case 527: return "Toothbrush Soul";
+                case 528: return "Stereoscope Soul";
+                case 529: return "Dish Soap Bottle Soul";
+                case 530: return "Spray Bottle Soul";
+                case 531: return "Weed Tool Soul";
+                case 532: return "Lily Flower Soul";
+                case 533: return "Fusilage Soul";
+                case 534: return "Coin Soul";
+                case 535: return "Chalk Soul";
+                case 536: return "Dustbin Lid Soul";
+                case 537: return "Shopping Basket Soul";
+                case 538: return "Push Broom Soul";
+                case 539: return "Broken Broom Head Soul";
+                case 540: return "Dustbin Soul";
+                case 541: return "Baby Doll Soul";
+                case 542: return "Pricing Gun Soul";
+                case 543: return "Adding Machine Soul";
+                
+                // Back Gardens One-Off Prop Souls (550-574)
+                case 550: return "Dummy Soul";
+                case 551: return "Cricket Ball Soul";
+                case 552: return "Bust Pipe Soul";
+                case 553: return "Bust Hat Soul";
+                case 554: return "Bust Glasses Soul";
+                case 555: return "Tea Cup Soul";
+                case 556: return "Newspaper Soul";
+                case 557: return "Badminton Racket Soul";
+                case 558: return "Pot Stack Soul";
+                case 559: return "Soap Soul";
+                case 560: return "Paintbrush Soul";
+                case 561: return "Vase Soul";
+                case 562: return "Right Strap Soul";
+                case 563: return "Rose Soul";
+                case 564: return "Rose Box Soul";
+                case 565: return "Cricket Bat Soul";
+                case 566: return "Tea Pot Soul";
+                case 567: return "Clippers Soul";
+                case 568: return "Duck Statue Soul";
+                case 569: return "Frog Statue Soul";
+                case 570: return "Jeremy Fish Soul";
+                case 571: return "Messy Sign Soul";
+                case 572: return "Drawer Soul";
+                case 573: return "Enamel Jug Soul";
+                case 574: return "Clean Sign Soul";
+                
+                // Pub One-Off Prop Souls (580-601)
+                case 580: return "Fishing Bobber Soul";
+                case 581: return "Exit Letter Soul";
+                case 582: return "Pint Glass Soul";
+                case 583: return "Toy Boat Soul";
+                case 584: return "Wooly Hat Soul";
+                case 585: return "Pepper Grinder Soul";
+                case 586: return "Pub Cloth Soul";
+                case 587: return "Cork Soul";
+                case 588: return "Candlestick Soul";
+                case 589: return "Flower for Vase Soul";
+                case 590: return "Harmonica Soul";
+                case 591: return "Tackle Box Soul";
+                case 592: return "Traffic Cone Soul";
+                case 593: return "Exit Parcel Soul";
+                case 594: return "Stealth Box Soul";
+                case 595: return "No Goose Sign Soul";
+                case 596: return "Portable Stool Soul";
+                case 597: return "Dartboard Soul";
+                case 598: return "Mop Bucket Soul";
+                case 599: return "Mop Soul";
+                case 600: return "Delivery Box Soul";
+                case 601: return "Tomato Box Soul";
+                
+                // Model Village One-Off Prop Souls (610-620)
+                case 610: return "Mini Mail Pillar Soul";
+                case 611: return "Mini Phone Door Soul";
+                case 612: return "Mini Shovel Soul";
+                case 613: return "Poppy Flower Soul";
+                case 614: return "Timber Handle Soul";
+                case 615: return "Birdbath Soul";
+                case 616: return "Easel Soul";
+                case 617: return "Mini Bench Soul";
+                case 618: return "Mini Pump Soul";
+                case 619: return "Mini Street Bench Soul";
+                case 620: return "Sun Lounge Soul";
+                case 621: return "Golden Bell Soul";
+                
+                // Victory
                 case 999: return "Golden Bell";
+                
                 default: return "Unknown Item (" + offset + ")";
             }
         }
@@ -204,12 +366,10 @@ namespace GooseGameAP
             
             switch (lowerName)
             {
-                // Garden items (1001-1020)
-                case "boot": return BASE_ID + 1001;  // Fallback for unrenamed boot
+                // Garden items (1002-1020) - Boot handled above as boot_1/boot_2
                 case "radiosmall": return BASE_ID + 1002;
                 case "trowel": return BASE_ID + 1003;
                 case "keys": return BASE_ID + 1004;
-                case "carrot": return BASE_ID + 1005;  // Fallback for any unrenamed carrot
                 case "tulip": return BASE_ID + 1006;
                 case "apple": return BASE_ID + 1007;
                 case "jam": return BASE_ID + 1008;
@@ -217,7 +377,6 @@ namespace GooseGameAP
                 case "thermos (1)": return BASE_ID + 1010;
                 case "sandwichr": return BASE_ID + 1011;
                 case "sandwichl": return BASE_ID + 1012;
-                case "forkgarden": return BASE_ID + 1013;
                 case "strawhat": return BASE_ID + 1014;
                 case "drinkcan": return BASE_ID + 1015;
                 case "tennisball": return BASE_ID + 1016;
@@ -297,7 +456,6 @@ namespace GooseGameAP
                 case "fishingbobberprop": return BASE_ID + 1101;
                 case "exitletterprop":
                 case "exitletter": return BASE_ID + 1102;
-                case "pubtomato": return BASE_ID + 1103;  // Fallback for unrenamed pub tomato
                 case "plate": return BASE_ID + 1104;
                 case "plate (1)": return BASE_ID + 1105;
                 case "plate (2)": return BASE_ID + 1106;
@@ -391,7 +549,6 @@ namespace GooseGameAP
                 case "rake": return BASE_ID + 1201;
                 case "basket": return BASE_ID + 1202;
                 case "coolbox": return BASE_ID + 1203;
-                case "top": return BASE_ID + 1204;  // Fallback for unrenamed topsoil bag
                 case "shovel": return BASE_ID + 1205;
                 case "pumpkin": return BASE_ID + 1206;
                 case "pumpkin (2)": return BASE_ID + 1207;
@@ -439,6 +596,7 @@ namespace GooseGameAP
                 case "mopbucket": return BASE_ID + 1277;
                 case "mopprop": return BASE_ID + 1278;
                 case "infinitebox": return BASE_ID + 1279;
+                case "tomatobox": return BASE_ID + 1280;
                 
                 // Model Village drags (1290-1295)
                 case "minibenchprop": return BASE_ID + 1290;
@@ -624,6 +782,9 @@ namespace GooseGameAP
                 case 1230: return "Drag Pub Bucket";
                 case 1231: return "Drag Pub Box";
                 
+                // Model Village items
+                case 1144: return "Pick up Mini Person (Goose)";
+                
                 // Interactions (1301-1350)
                 case 1301: return "Ring Bell";
                 case 1302: return "Honk at Speaker";
@@ -666,6 +827,43 @@ namespace GooseGameAP
                 case 1344: return "Wind Chime C";
                 case 1345: return "Wind Chime B";
                 case 1346: return "Wind Chime A";
+                
+                // Sandcastle pecks (1350-1384) - 35 raw pecks
+                case 1350: return "Peck Model Church Doorway 1";
+                case 1351: return "Peck Model Church Doorway 2";
+                case 1352: return "Peck Model Church Doorway 3";
+                case 1353: return "Peck Model Church Doorway 4";
+                case 1354: return "Peck Model Church Doorway 5";
+                case 1355: return "Peck Model Church Doorway 6";
+                case 1356: return "Peck Model Church Doorway 7";
+                case 1357: return "Peck Model Church Doorway 8";
+                case 1358: return "Peck Model Church Doorway 9";
+                case 1359: return "Peck Model Church Doorway 10";
+                case 1360: return "Peck Model Church Doorway 11";
+                case 1361: return "Peck Model Church Doorway 12";
+                case 1362: return "Peck Model Church Doorway 13";
+                case 1363: return "Peck Model Church Doorway 14";
+                case 1364: return "Peck Model Church Doorway 15";
+                case 1365: return "Peck Model Church Doorway 16";
+                case 1366: return "Peck Model Church Doorway 17";
+                case 1367: return "Peck Model Church Doorway 18";
+                case 1368: return "Peck Model Church Doorway 19";
+                case 1369: return "Peck Model Church Tower 1";
+                case 1370: return "Peck Model Church Tower 2";
+                case 1371: return "Peck Model Church Tower 3";
+                case 1372: return "Peck Model Church Tower 4";
+                case 1373: return "Peck Model Church Tower 5";
+                case 1374: return "Peck Model Church Tower 6";
+                case 1375: return "Peck Model Church Tower 7";
+                case 1376: return "Peck Model Church Tower 8";
+                case 1377: return "Peck Model Church Tower 9";
+                case 1378: return "Peck Model Church Tower 10";
+                case 1379: return "Peck Model Church Tower 11";
+                case 1380: return "Peck Model Church Tower 12";
+                case 1381: return "Peck Model Church Tower 13";
+                case 1382: return "Peck Model Church Tower 14";
+                case 1383: return "Peck Model Church Tower 15";
+                case 1384: return "Peck Model Church Tower 16";
                 
                 // Renamed pickups (1401-1452)
                 case 1401: return "Pickup Carrot 1";

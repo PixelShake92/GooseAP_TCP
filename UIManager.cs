@@ -111,6 +111,7 @@ namespace GooseGameAP
             if (GUI.Button(new Rect(x + 460, y, 100, 30), "Reset"))
             {
                 plugin.ResetAllAccess();
+                plugin.NPCManager?.RefreshNPCStates(); // Re-apply (all disabled now)
                 ShowNotification("Progress reset!");
             }
             y += 36;

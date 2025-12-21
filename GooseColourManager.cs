@@ -14,10 +14,9 @@ namespace GooseGameAP
         private SkinnedMeshRenderer[] gooseRenderers;
         private Material[] originalMaterials;
         private Material gooseSkinMaterial; // Direct reference to goose's skin material
-        private Color[] originalVertexColors; // Store original mesh vertex colors
+        private Dictionary<Mesh, Color[]> originalVertexColoursByMesh = new Dictionary<Mesh, Color[]>(); // Store originals per mesh - never cleared
         private bool hasStoredOriginals = false;
         private bool hasLoggedSearch = false;
-        private Color lastLoggedColor = Color.clear;
         
         // Current color state
         private int currentColourIndex = 0;
@@ -154,14 +153,12 @@ namespace GooseGameAP
             if (preset.IsRainbow)
             {
                 rainbowMode = true;
-                Plugin.Log?.LogInfo($"[GOOSE COLOUR] Rainbow mode activated!");
             }
             else
             {
                 rainbowMode = false;
                 targetColor = preset.Color;
                 lerpProgress = 0f;
-                Plugin.Log?.LogInfo($"[GOOSE COLOUR] Set to: {preset.Name}");
                 
                 // Immediately try to apply (will also find renderers if needed)
                 ApplyColorDirect(preset.Color);
@@ -180,16 +177,8 @@ namespace GooseGameAP
                     FindGooseRenderers();
                     if (gooseRenderers == null || gooseRenderers.Length == 0)
                     {
-                        Plugin.Log?.LogWarning("[GOOSE COLOUR] No renderers to apply color to");
                         return;
                     }
-                }
-                
-                // Only log when color changes significantly (not every rainbow frame)
-                if (lastLoggedColor != color && !rainbowMode)
-                {
-                    Plugin.Log?.LogInfo($"[GOOSE COLOUR] Applying vertex color tint {color}");
-                    lastLoggedColor = color;
                 }
                 
                 for (int i = 0; i < gooseRenderers.Length; i++)
@@ -217,49 +206,52 @@ namespace GooseGameAP
                     Mesh mesh = renderer.sharedMesh;
                     if (mesh == null) continue;
                     
-                    // Get current vertex colors (or create white array if none)
-                    Color[] colors = mesh.colors;
-                    if (colors == null || colors.Length == 0)
+                    // Get or create original colours for this mesh (never re-read from mesh after first store)
+                    Color[] originalColours;
+                    if (!originalVertexColoursByMesh.TryGetValue(mesh, out originalColours))
                     {
-                        // Initialize with white if no vertex colors exist
-                        colors = new Color[mesh.vertexCount];
-                        for (int v = 0; v < colors.Length; v++)
-                        {
-                            colors[v] = Color.white;
-                        }
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] No vertex colors found, initialized {colors.Length} white vertices");
-                    }
-                    
-                    // Store original colors on first access
-                    if (originalVertexColors == null)
-                    {
-                        originalVertexColors = (Color[])colors.Clone();
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] Stored {originalVertexColors.Length} original vertex colors");
-                    }
-                    
-                    // Apply tint to vertex colors
-                    Color[] newColors = new Color[originalVertexColors.Length];
-                    for (int v = 0; v < originalVertexColors.Length; v++)
-                    {
-                        Color baseColor = originalVertexColors[v];
+                        // First time seeing this mesh - store the REAL original colours
+                        Color[] meshColours = mesh.colors;
                         
-                        // Multiply the base color by our tint
-                        newColors[v] = new Color(
-                            baseColor.r * color.r,
-                            baseColor.g * color.g,
-                            baseColor.b * color.b,
-                            baseColor.a
+                        if (meshColours != null && meshColours.Length > 0)
+                        {
+                            // Clone the actual original colours (beak orange, feet orange, body white, etc.)
+                            originalColours = (Color[])meshColours.Clone();
+                        }
+                        else
+                        {
+                            // No vertex colours exist, default to white
+                            originalColours = new Color[mesh.vertexCount];
+                            for (int v = 0; v < originalColours.Length; v++)
+                            {
+                                originalColours[v] = Color.white;
+                            }
+                        }
+                        originalVertexColoursByMesh[mesh] = originalColours;
+                    }
+                    
+                    // Apply tint to vertex colours
+                    Color[] newColours = new Color[originalColours.Length];
+                    for (int v = 0; v < originalColours.Length; v++)
+                    {
+                        Color baseColour = originalColours[v];
+                        
+                        // Multiply the base colour by our tint
+                        newColours[v] = new Color(
+                            baseColour.r * color.r,
+                            baseColour.g * color.g,
+                            baseColour.b * color.b,
+                            baseColour.a
                         );
                     }
                     
-                    // Apply the new colors
-                    mesh.colors = newColors;
+                    // Apply the new colours
+                    mesh.colors = newColours;
                 }
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogError($"[GOOSE COLOUR] Error applying color: {ex.Message}");
-                Plugin.Log?.LogError($"[GOOSE COLOUR] Stack: {ex.StackTrace}");
+                Plugin.Log?.LogError($"[GOOSE COLOUR] Error: {ex.Message}");
             }
         }
         
@@ -274,19 +266,22 @@ namespace GooseGameAP
             currentColor = Color.white;
             lerpProgress = 0f;
             
-            // Restore original vertex colors if we have them
-            if (originalVertexColors != null && gooseRenderers != null)
+            // Restore original vertex colors
+            if (gooseRenderers != null)
             {
                 foreach (var renderer in gooseRenderers)
                 {
                     if (renderer?.sharedMesh != null)
                     {
-                        renderer.sharedMesh.colors = originalVertexColors;
+                        Mesh mesh = renderer.sharedMesh;
+                        if (originalVertexColoursByMesh.TryGetValue(mesh, out Color[] originals))
+                        {
+                            mesh.colors = originals;
+                        }
                     }
                 }
             }
             
-            Plugin.Log?.LogInfo("[GOOSE COLOUR] Reset to default");
         }
         
         /// <summary>
@@ -296,19 +291,12 @@ namespace GooseGameAP
         {
             try
             {
-                if (!hasLoggedSearch)
-                {
-                    Plugin.Log?.LogInfo("[GOOSE COLOUR] Searching for goose renderers...");
-                }
-                
                 // Try to find goose via GameManager
                 Goose goose = null;
                 
                 if (GameManager.instance?.allGeese != null && GameManager.instance.allGeese.Count > 0)
                 {
                     goose = GameManager.instance.allGeese[0];
-                    if (!hasLoggedSearch)
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] Found goose via GameManager: {goose?.name}");
                 }
                 
                 // Also try GameObject.Find like the mod does
@@ -318,8 +306,6 @@ namespace GooseGameAP
                     if (gooseObj != null)
                     {
                         goose = gooseObj.GetComponent<Goose>();
-                        if (!hasLoggedSearch)
-                            Plugin.Log?.LogInfo($"[GOOSE COLOUR] Found goose via GameObject.Find: {goose?.name}");
                     }
                 }
                 
@@ -327,14 +313,10 @@ namespace GooseGameAP
                 if (goose == null)
                 {
                     goose = GameObject.FindObjectOfType<Goose>();
-                    if (goose != null && !hasLoggedSearch)
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] Found goose via FindObjectOfType: {goose?.name}");
                 }
                 
                 if (goose == null)
                 {
-                    if (!hasLoggedSearch)
-                        Plugin.Log?.LogWarning("[GOOSE COLOUR] Could not find Goose");
                     hasLoggedSearch = true;
                     return;
                 }
@@ -342,7 +324,6 @@ namespace GooseGameAP
                 // Get all SkinnedMeshRenderers - this is what PsychedelicGooseMod does
                 gooseRenderers = goose.GetComponentsInChildren<SkinnedMeshRenderer>();
                 
-                Plugin.Log?.LogInfo($"[GOOSE COLOUR] Found {gooseRenderers?.Length ?? 0} SkinnedMeshRenderers");
                 
                 // Try to access m_skin field like PsychedelicGooseMod does
                 try
@@ -355,15 +336,12 @@ namespace GooseGameAP
                     if (skinField != null)
                     {
                         gooseSkinMaterial = skinField.GetValue(goose) as Material;
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] Found m_skin field: {gooseSkinMaterial?.name}, Shader: {gooseSkinMaterial?.shader?.name}");
                     }
                     else
                     {
-                        Plugin.Log?.LogInfo("[GOOSE COLOUR] m_skin field not found on Goose");
                         
                         // List all fields on Goose for debugging
                         var allFields = typeof(Goose).GetFields(flags);
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR] Goose has {allFields.Length} fields:");
                         foreach (var f in allFields)
                         {
                             if (f.FieldType == typeof(Material) || 
@@ -373,14 +351,12 @@ namespace GooseGameAP
                                 f.Name.ToLower().Contains("material") ||
                                 f.Name.ToLower().Contains("render"))
                             {
-                                Plugin.Log?.LogInfo($"[GOOSE COLOUR]   {f.Name}: {f.FieldType.Name}");
                             }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Plugin.Log?.LogInfo($"[GOOSE COLOUR] Could not access m_skin: {ex.Message}");
                 }
                 
                 hasLoggedSearch = true;
@@ -408,10 +384,6 @@ namespace GooseGameAP
                         if (renderer?.material != null)
                         {
                             var mat = renderer.material;
-                            Plugin.Log?.LogInfo($"[GOOSE COLOUR] Renderer: {renderer.name}");
-                            Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Material: {mat.name}");
-                            Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Shader: {mat.shader?.name}");
-                            Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Current mat.color: {mat.color}");
                             
                             // Check all possible color property names
                             string[] possibleProps = { 
@@ -427,11 +399,9 @@ namespace GooseGameAP
                                     try
                                     {
                                         Color c = mat.GetColor(prop);
-                                        Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Has {prop}: {c}");
                                     }
                                     catch
                                     {
-                                        Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Has {prop} (not a color)");
                                     }
                                 }
                             }
@@ -440,7 +410,6 @@ namespace GooseGameAP
                             string[] keywords = mat.shaderKeywords;
                             if (keywords.Length > 0)
                             {
-                                Plugin.Log?.LogInfo($"[GOOSE COLOUR]   Keywords: {string.Join(", ", keywords)}");
                             }
                         }
                     }
@@ -449,21 +418,16 @@ namespace GooseGameAP
                 {
                     // Try regular MeshRenderers as fallback
                     var meshRenderers = goose.GetComponentsInChildren<MeshRenderer>();
-                    Plugin.Log?.LogInfo($"[GOOSE COLOUR] No SkinnedMeshRenderers, found {meshRenderers.Length} MeshRenderers");
                     
                     // Also check all Renderers
                     var allRenderers = goose.GetComponentsInChildren<Renderer>();
-                    Plugin.Log?.LogInfo($"[GOOSE COLOUR] Total Renderers of any type: {allRenderers.Length}");
                     foreach (var r in allRenderers)
                     {
-                        Plugin.Log?.LogInfo($"[GOOSE COLOUR]   {r.GetType().Name}: {r.name}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogError($"[GOOSE COLOUR] Error finding renderers: {ex.Message}");
-                Plugin.Log?.LogError($"[GOOSE COLOUR] Stack: {ex.StackTrace}");
             }
         }
         
@@ -474,7 +438,7 @@ namespace GooseGameAP
         {
             gooseRenderers = null;
             gooseSkinMaterial = null;
-            originalVertexColors = null;
+            // NOTE: Do NOT clear originalVertexColoursByMesh - we need to keep the true originals
             hasStoredOriginals = false;
             hasLoggedSearch = false;
             FindGooseRenderers();

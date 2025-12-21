@@ -16,7 +16,7 @@ class GooseGameWeb(WebWorld):
         "English",
         "setup_en.md",
         "setup/en",
-        ["PixelShake92"]
+        ["YourName"]
     )
     
     tutorials = [setup_en]
@@ -83,6 +83,166 @@ class GooseGameWorld(World):
             "Model Village Access"
         ]
         
+        # NPC Soul items (10 total) - required for NPC-related goals
+        npc_souls = [
+            "Groundskeeper Soul",
+            "Boy Soul",
+            "TV Shop Owner Soul",
+            "Market Lady Soul",
+            "Tidy Neighbour Soul",
+            "Messy Neighbour Soul",
+            "Burly Man Soul",
+            "Old Man Soul",
+            "Pub Lady Soul",
+            "Fancy Ladies Soul",
+        ]
+        
+        # Prop Soul items - required for picking up/dragging items
+        prop_souls = [
+            # Grouped Prop Souls (26)
+            "Carrot Soul",
+            "Tomato Soul",
+            "Pumpkin Soul",
+            "Topsoil Bag Soul",
+            "Quoit Soul",
+            "Plate Soul",
+            "Orange Soul",
+            "Leek Soul",
+            "Cucumber Soul",
+            "Dart Soul",
+            "Umbrella Soul",
+            "Spray Can Soul",
+            "Sock Soul",
+            "Pint Bottle Soul",
+            "Knife Soul",
+            "Gumboot Soul",
+            "Fork Soul",
+            "Vase Piece Soul",
+            "Apple Core Soul",
+            "Apple Soul",
+            "Sandwich Soul",
+            "Slipper Soul",
+            "Bow Soul",
+            "Walkie Talkie Soul",
+            "Boot Soul",
+            "Mini Person Soul",
+            
+            # Garden Prop Souls (20)
+            "Radio Soul",
+            "Trowel Soul",
+            "Keys Soul",
+            "Tulip Soul",
+            "Jam Soul",
+            "Picnic Mug Soul",
+            "Thermos Soul",
+            "Straw Hat Soul",
+            "Drink Can Soul",
+            "Tennis Ball Soul",
+            "Gardener Hat Soul",
+            "Rake Soul",
+            "Picnic Basket Soul",
+            "Esky Soul",
+            "Shovel Soul",
+            "Watering Can Soul",
+            "Fence Bolt Soul",
+            "Mallet Soul",
+            "Wooden Crate Soul",
+            "Gardener Sign Soul",
+            
+            # High Street Prop Souls (24)
+            "Boy's Glasses Soul",
+            "Horn-Rimmed Glasses Soul",
+            "Red Glasses Soul",
+            "Sunglasses Soul",
+            "Toilet Paper Soul",
+            "Toy Car Soul",
+            "Hairbrush Soul",
+            "Toothbrush Soul",
+            "Stereoscope Soul",
+            "Dish Soap Bottle Soul",
+            "Spray Bottle Soul",
+            "Weed Tool Soul",
+            "Lily Flower Soul",
+            "Fusilage Soul",
+            "Coin Soul",
+            "Chalk Soul",
+            "Dustbin Lid Soul",
+            "Shopping Basket Soul",
+            "Push Broom Soul",
+            "Broken Broom Head Soul",
+            "Dustbin Soul",
+            "Baby Doll Soul",
+            "Pricing Gun Soul",
+            "Adding Machine Soul",
+            
+            # Back Gardens Prop Souls (25)
+            "Dummy Soul",
+            "Cricket Ball Soul",
+            "Bust Pipe Soul",
+            "Bust Hat Soul",
+            "Bust Glasses Soul",
+            "Tea Cup Soul",
+            "Newspaper Soul",
+            "Badminton Racket Soul",
+            "Pot Stack Soul",
+            "Soap Soul",
+            "Paintbrush Soul",
+            "Vase Soul",
+            "Right Strap Soul",
+            "Rose Soul",
+            "Rose Box Soul",
+            "Cricket Bat Soul",
+            "Tea Pot Soul",
+            "Clippers Soul",
+            "Duck Statue Soul",
+            "Frog Statue Soul",
+            "Jeremy Fish Soul",
+            "Messy Sign Soul",
+            "Drawer Soul",
+            "Enamel Jug Soul",
+            "Clean Sign Soul",
+            
+            # Pub Prop Souls (22)
+            "Fishing Bobber Soul",
+            "Exit Letter Soul",
+            "Pint Glass Soul",
+            "Toy Boat Soul",
+            "Wooly Hat Soul",
+            "Pepper Grinder Soul",
+            "Pub Cloth Soul",
+            "Cork Soul",
+            "Candlestick Soul",
+            "Flower for Vase Soul",
+            "Harmonica Soul",
+            "Tackle Box Soul",
+            "Traffic Cone Soul",
+            "Exit Parcel Soul",
+            "Stealth Box Soul",
+            "No Goose Sign Soul",
+            "Portable Stool Soul",
+            "Dartboard Soul",
+            "Mop Bucket Soul",
+            "Mop Soul",
+            "Delivery Box Soul",
+           # "Burly Mans Bucket Soul",
+            
+            # Model Village Prop Souls (11)
+            "Mini Mail Pillar Soul",
+            "Mini Phone Door Soul",
+            "Mini Shovel Soul",
+            "Poppy Flower Soul",
+            "Timber Handle Soul",
+            "Birdbath Soul",
+            "Easel Soul",
+            "Mini Bench Soul",
+            "Mini Pump Soul",
+            "Mini Street Bench Soul",
+            "Sun Lounge Soul",
+            
+            # Victory item soul
+            "Golden Bell Soul",
+        ]
+        
         # Add area items to pool (except the starting one)
         for item_name in area_items:
             if item_name == starting_area:
@@ -91,13 +251,21 @@ class GooseGameWorld(World):
             else:
                 self.multiworld.itempool.append(self.create_item(item_name))
         
+        # Add all NPC souls to pool
+        for soul in npc_souls:
+            self.multiworld.itempool.append(self.create_item(soul))
+        
+        # Add all Prop souls to pool
+        for soul in prop_souls:
+            self.multiworld.itempool.append(self.create_item(soul))
+        
         # Victory item
         self.multiworld.itempool.append(self.create_item("Golden Bell"))
         
         # Calculate filler needed
         total_locations = len(self.multiworld.get_unfilled_locations(self.player))
-        # 4 area items in pool (one is precollected) + 1 Golden Bell = 5 items
-        items_added = 5
+        # 4 area items in pool + NPC souls + prop souls + 1 Golden Bell
+        items_added = 4 + len(npc_souls) + len(prop_souls) + 1
         filler_needed = total_locations - items_added
         
         # Capped filler items - these have maximum quantities

@@ -208,6 +208,7 @@ namespace GooseGameAP
         
         public void ClearReceivedItems()
         {
+            Log.LogInfo("[AP] ClearReceivedItems called - resetting lastProcessedIndex to -1");
             lastProcessedIndex = -1;
             PlayerPrefs.SetInt("AP_LastItemIndex", -1);
             PlayerPrefs.Save();
@@ -267,11 +268,13 @@ namespace GooseGameAP
                 // Parse player names from "players" array
                 ParsePlayerNames(data);
                 
-                // Reload access flags from disk first - in case they were saved but not in memory
-                plugin.ReloadAccessFlags();
+                // DON'T reload access flags here - Plugin.Connect() already handled slot validation
+                // and set up the correct state. Reloading here would undo that work.
                 
-                // Load last processed index from persistence
+                // Load last processed index - this was already set correctly by Plugin.Connect()
+                // via ClearReceivedItems() if slot changed, or preserved if same slot
                 lastProcessedIndex = PlayerPrefs.GetInt("AP_LastItemIndex", -1);
+                Log.LogInfo($"[AP] Connected - lastProcessedIndex = {lastProcessedIndex}");
                 
                 // IMMEDIATELY queue a gate sync using saved flags
                 // This ensures gates work even if AP doesn't resend items
@@ -323,8 +326,11 @@ namespace GooseGameAP
                 }
             }
             
+            Log.LogInfo($"[AP] ParseReceivedItems - startingIndex={startingIndex}, lastProcessedIndex={lastProcessedIndex}");
+            
             int pos = 0;
             int currentIndex = startingIndex;
+            int newItemsCount = 0;
             
             while ((pos = data.IndexOf("\"item\":", pos + 1)) > 0)
             {
@@ -344,6 +350,7 @@ namespace GooseGameAP
                         {
                             plugin.UI.AddReceivedItem(itemName);
                             plugin.ProcessReceivedItem(itemId);
+                            newItemsCount++;
                             
                             // Update last processed index
                             lastProcessedIndex = currentIndex;
@@ -355,6 +362,8 @@ namespace GooseGameAP
                     }
                 }
             }
+            
+            Log.LogInfo($"[AP] ParseReceivedItems - processed {newItemsCount} new items, lastProcessedIndex now {lastProcessedIndex}");
         }
         
         private void ParsePlayerNames(string data)

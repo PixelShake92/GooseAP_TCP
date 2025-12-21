@@ -229,7 +229,20 @@ namespace GooseGameAP
     [HarmonyPatch]
     public static class SwitchSystemPatches
     {
-        private static HashSet<string> loggedSwitches = new HashSet<string>();
+        // Model church peck tracking
+        private static Dictionary<string, int> sandcastleStates = new Dictionary<string, int>();
+        private const string DOORWAY_PATH = "DoorwayPeckzoneSequence/DoorwayPeckAtSystem";
+        private const string TOWER_PATH = "TowerPeckzoneSequence/TowerPeckAtSystem";
+        private const int DOORWAY_MAX = 19;
+        private const int TOWER_MAX = 16;
+        
+        /// <summary>
+        /// Reset model church tracking when game restarts
+        /// </summary>
+        public static void ResetSandcastleTracking()
+        {
+            sandcastleStates.Clear();
+        }
         
         /// <summary>
         /// Log when SwitchSystem.Peck is called (toggle-style switches)
@@ -243,20 +256,10 @@ namespace GooseGameAP
                 string objName = __instance?.gameObject?.name ?? "unknown";
                 string parentName = __instance?.transform?.parent?.gameObject?.name ?? "no parent";
                 
-                // Log for discovery
-                string key = $"peck_{objName}_{parentName}";
-                if (!loggedSwitches.Contains(key))
-                {
-                    loggedSwitches.Add(key);
-                }
-                
                 CheckInteraction(__instance, objName, parentName);
                 CheckLacesInteraction(__instance, objName, parentName);
             }
-            catch (Exception ex)
-            {
-                Plugin.Log?.LogError($"[SWITCH PECK] Error: {ex.Message}");
-            }
+            catch { }
         }
         
         /// <summary>
@@ -271,20 +274,99 @@ namespace GooseGameAP
                 string objName = __instance?.gameObject?.name ?? "unknown";
                 string parentName = __instance?.transform?.parent?.gameObject?.name ?? "no parent";
                 
-                // Log for discovery
-                string key = $"setstate_{objName}_{parentName}";
-                if (!loggedSwitches.Contains(key))
-                {
-                    loggedSwitches.Add(key);
-                }
-                
                 CheckInteraction(__instance, objName, parentName);
                 CheckLacesInteraction(__instance, objName, parentName);
+                CheckSandcastlePeck(__instance);
+                CheckFinaleStart(__instance, objName);
             }
-            catch (Exception ex)
+            catch { }
+        }
+        
+        /// <summary>
+        /// Check if this is a model church peck and send location checks
+        /// </summary>
+        private static void CheckSandcastlePeck(SwitchSystem instance)
+        {
+            if (Plugin.Instance == null || instance == null) return;
+            
+            string path = GetSwitchPath(instance);
+            if (string.IsNullOrEmpty(path)) return;
+            
+            bool isDoorway = path.Contains(DOORWAY_PATH);
+            bool isTower = path.Contains(TOWER_PATH);
+            
+            if (!isDoorway && !isTower) return;
+            
+            int state = instance.currentState;
+            string sideKey = isDoorway ? "doorway" : "tower";
+            int maxPecks = isDoorway ? DOORWAY_MAX : TOWER_MAX;
+            
+            int lastState = 0;
+            if (sandcastleStates.ContainsKey(sideKey))
             {
-                Plugin.Log?.LogError($"[SWITCH SETSTATE] Error: {ex.Message}");
+                lastState = sandcastleStates[sideKey];
             }
+            
+            if (state > lastState)
+            {
+                for (int i = lastState + 1; i <= state && i <= maxPecks; i++)
+                {
+                    long? locationId = GetSandcastleLocationId(sideKey, i);
+                    if (locationId.HasValue)
+                    {
+                        Plugin.Instance.SendLocationCheck(locationId.Value);
+                    }
+                }
+                sandcastleStates[sideKey] = state;
+            }
+        }
+        
+        /// <summary>
+        /// Check if finale has started (bell grabbed from model church)
+        /// </summary>
+        private static void CheckFinaleStart(SwitchSystem instance, string objName)
+        {
+            // Don't trigger during game initialization
+            if (Plugin.Instance == null || !Plugin.Instance.HasInitializedGates) return;
+            
+            // The bell's finaleSystem activates when grabbed
+            if (objName.ToLower() == "finalesystem" && instance.currentState == 1)
+            {
+                string path = GetSwitchPath(instance);
+                if (path.Contains("goldenBell"))
+                {
+                    Plugin.Instance?.GateManager?.OnFinaleStart();
+                }
+            }
+        }
+        
+        private static string GetSwitchPath(SwitchSystem sw)
+        {
+            if (sw == null || sw.gameObject == null) return null;
+            
+            string path = sw.gameObject.name;
+            Transform parent = sw.transform.parent;
+            while (parent != null)
+            {
+                path = parent.name + "/" + path;
+                parent = parent.parent;
+            }
+            return path;
+        }
+        
+        private static long? GetSandcastleLocationId(string side, int peckNumber)
+        {
+            const long BASE_ID = 119000000;
+            
+            if (side == "doorway" && peckNumber >= 1 && peckNumber <= DOORWAY_MAX)
+            {
+                return BASE_ID + 1350 + (peckNumber - 1);
+            }
+            else if (side == "tower" && peckNumber >= 1 && peckNumber <= TOWER_MAX)
+            {
+                return BASE_ID + 1369 + (peckNumber - 1);
+            }
+            return null;
         }
         
         /// <summary>
