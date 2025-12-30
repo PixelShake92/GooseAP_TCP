@@ -166,7 +166,7 @@ def get_goal_rules(player, include_npc_souls, include_prop_souls):
             has_soul(state, player, "Shopping Basket") 
             and has_soul(state, player, "Toothbrush") 
             and has_soul(state, player, "Hairbrush") 
-            and has_soul(state, player, "Toilet Paper")
+            and has_soul(state, player, "Loo Paper")
             and (
                 has_soul(state, player, "Dish Soap Bottle") 
                 or has_soul(state, player, "Spray Bottle")
@@ -540,7 +540,7 @@ def get_extra_goal_rules(player, include_npc_souls, include_prop_souls):
             has_soul(state, player, "Shopping Basket") 
             and has_soul(state, player, "Toothbrush") 
             and has_soul(state, player, "Hairbrush") 
-            and has_soul(state, player, "Toilet Paper")
+            and has_soul(state, player, "Loo Paper")
             and (
                 has_soul(state, player, "Dish Soap Bottle") 
                 or has_soul(state, player, "Spray Bottle")
@@ -689,7 +689,7 @@ def get_extra_goal_rules(player, include_npc_souls, include_prop_souls):
             item_count += 1
         if has_soul(state, player, "Hairbrush"):
             item_count += 1
-        if has_soul(state, player, "Toilet Paper"):
+        if has_soul(state, player, "Loo Paper"):
             item_count += 1
         if has_soul(state, player, "Dish Soap Bottle"):
             item_count += 1
@@ -1001,7 +1001,7 @@ def get_speedrun_rules(player, include_npc_souls, include_prop_souls):
             has_soul(state, player, "Shopping Basket") 
             and has_soul(state, player, "Toothbrush") 
             and has_soul(state, player, "Hairbrush") 
-            and has_soul(state, player, "Toilet Paper")
+            and has_soul(state, player, "Loo Paper")
             and (
                 has_soul(state, player, "Dish Soap Bottle") 
                 or has_soul(state, player, "Spray Bottle")
@@ -1290,7 +1290,7 @@ def get_pickup_rules(player, include_npc_souls, include_prop_souls):
             has_soul(state, player, "Shopping Basket") 
             and has_soul(state, player, "Toothbrush") 
             and has_soul(state, player, "Hairbrush") 
-            and has_soul(state, player, "Toilet Paper")
+            and has_soul(state, player, "Loo Paper")
             and (
                 has_soul(state, player, "Dish Soap Bottle") 
                 or has_soul(state, player, "Spray Bottle")
@@ -1673,10 +1673,10 @@ def get_pickup_rules(player, include_npc_souls, include_prop_souls):
                 has_high_street(state, player) 
                 and has_soul(state, player, "Sunglasses")
             ),
-        "Pick up Toilet Paper":
+        "Pick up Loo Paper":
             lambda state: (
                 has_high_street(state, player) 
-                and has_soul(state, player, "Toilet Paper")
+                and has_soul(state, player, "Loo Paper")
             ),
         "Pick up Toy Car":
             lambda state: (
