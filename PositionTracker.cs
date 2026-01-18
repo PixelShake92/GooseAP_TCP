@@ -58,6 +58,7 @@ namespace GooseGameAP
             RenameUmbrellas();
             RenameBoots();
             RenameTopsoil();
+            RenamePintBottles();
             
             // Find all Prop objects in scene
             var allProps = UnityEngine.Object.FindObjectsOfType<Prop>();
@@ -319,6 +320,66 @@ namespace GooseGameAP
             }
             
             Log?.LogInfo($"[RENAME] Renamed {boots.Count} boots");
+        }
+        
+        /// <summary>
+        /// Find all pint bottles in the scene and rename them to pintbottle_1, pintbottle_2, etc.
+        /// 
+        /// </summary>
+        public void RenamePintBottles()
+        {
+            Log?.LogInfo("[RENAME] Looking for pint bottles to rename...");
+            
+            var allProps = UnityEngine.Object.FindObjectsOfType<Prop>();
+            var pintbottles = new List<Prop>();
+            
+            foreach (var prop in allProps)
+            {
+                if (prop == null || prop.gameObject == null) continue;
+                
+                string name = prop.gameObject.name.ToLower().Trim();
+                
+                if (name == "pintbottle")
+                {
+                    pintbottles.Add(prop);
+                }
+                else if (name == "pintbottle (1)")
+                {
+                    pintbottles.Add(prop);
+                }
+            }
+            
+            if (pintbottles.Count == 0)
+            {
+                Log?.LogInfo("[RENAME] No pint bottles found to rename");
+                return;
+            }
+            
+            // Sort by position for consistent ordering (x, then z, then y)
+            pintbottles.Sort((a, b) => {
+                Vector3 posA = a.transform.position;
+                Vector3 posB = b.transform.position;
+                
+                if (Mathf.Abs(posA.x - posB.x) > 1.0f)
+                    return posA.x.CompareTo(posB.x);
+                
+                if (Mathf.Abs(posA.z - posB.z) > 0.5f)
+                    return posA.z.CompareTo(posB.z);
+                
+                return posA.y.CompareTo(posB.y);
+            });
+            
+            // Rename each boot
+            for (int i = 0; i < pintbottles.Count; i++)
+            {
+                string newName = $"pintbottle_{i + 1}";
+                Vector3 pos = pintbottles[i].transform.position;
+                
+                Log?.LogInfo($"[RENAME] Renaming '{pintbottles[i].gameObject.name}' to '{newName}' at ({pos.x:F2}, {pos.y:F2}, {pos.z:F2})");
+                pintbottles[i].gameObject.name = newName;
+            }
+            
+            Log?.LogInfo($"[RENAME] Renamed {pintbottles.Count} pint bottles");
         }
         
         /// <summary>

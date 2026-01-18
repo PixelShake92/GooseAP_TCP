@@ -316,6 +316,62 @@ namespace GooseGameAP
                     Log?.LogInfo($"[HIGHLIGHT] Tracking new prop: {itemKey} (isPickup={isPickup}, renderers={highlighted.renderers.Length})");
                 }
             }
+
+            var checkAllGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            Log.LogInfo($"[HIGHLIGHT] Found {checkAllGameObjects.Length} 'checkAllGameObjects' total");
+            foreach (var gameObj in checkAllGameObjects)
+            {
+                if (gameObj == null) continue;
+                if (gameObj.name == "braSkinned")
+                {
+                    HighlightSpecificGameObject(gameObj, "rightstrap");
+                }
+                else if (gameObj.name == "fertilizer")
+                {
+                    HighlightSpecificGameObject(gameObj, "top");
+                }
+            }
+        }
+
+        /// <summary>
+        /// For highlighting specific special props
+        /// </summary>
+        private void HighlightSpecificGameObject(GameObject gameObj, string cleanName)
+        {    
+            int instanceId = gameObj.GetInstanceID();
+            
+            // Skip if already tracking
+            if (highlightedProps.ContainsKey(instanceId)) return;
+        
+            // Get the item key for this prop
+            string itemKey = cleanName;
+            
+            // Check if this is a valid pickup or drag location
+            bool isPickup = LocationMappings.GetItemLocationId(itemKey).HasValue;
+            bool isDrag = LocationMappings.GetDragLocationId(itemKey).HasValue;
+            
+            if (!isPickup && !isDrag) return;
+            
+            // Check if already checked
+            if (IsLocationChecked(itemKey, isPickup)) return;
+            
+            // Add to tracking
+            var highlighted = new HighlightedProp
+            {
+                gameObject = gameObj,
+                itemKey = itemKey,
+                isPickup = isPickup,
+                needsRefresh = false
+            };
+            
+            // Get renderers
+            highlighted.renderers = gameObj.GetComponentsInChildren<Renderer>();
+            
+            if (highlighted.renderers != null && highlighted.renderers.Length > 0)
+            {
+                highlightedProps[instanceId] = highlighted;
+                Log?.LogInfo($"[HIGHLIGHT] Tracking new prop: {itemKey} (isPickup={isPickup}, renderers={highlighted.renderers.Length})");
+            }
         }
         
         /// <summary>

@@ -14,6 +14,7 @@ namespace GooseGameAP
         private Plugin plugin;
         
         public static readonly Vector3 WellPosition = new Vector3(1.0f, 1.5f, -1.5f);
+        public static readonly Vector3 StartPosition = new Vector3(-38.2f, 1.0f, -21.5f);     // On the tree stump
         
         // Area warp positions (approximate entry points)
         public static readonly Vector3 GardenPosition = new Vector3(-16.3f, 0.5f, -17.5f);     // Near garden entrance (OOB)
@@ -462,6 +463,11 @@ namespace GooseGameAP
         public void TeleportGooseToWell()
         {
             TeleportGoose(WellPosition);
+        }
+        
+        public void TeleportGooseToStart()
+        {
+            TeleportGoose(StartPosition);
         }
         
         public void TeleportGoose(Vector3 position)

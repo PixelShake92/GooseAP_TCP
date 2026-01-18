@@ -199,6 +199,7 @@ namespace GooseGameAP
             if (!IsConnected) return;
             string json = "[{\"cmd\":\"LocationChecks\",\"locations\":[" + locationId + "]}]";
             SendPacket(json);
+            Log.LogInfo($"[LOC-APCLIENT] Sent location check: {locationId} = {LocationMappings.GetLocationName(locationId)}");
         }
         
         public void SendGoalComplete()

@@ -1,6 +1,7 @@
 from typing import Dict, Any, ClassVar
 from worlds.AutoWorld import World, WebWorld
 from BaseClasses import Item, Tutorial
+from Options import OptionError
 from .Items import item_table, GooseGameItem, ITEM_GROUPS
 from .Locations import location_table, GooseGameLocation, get_all_location_ids
 from .Regions import create_regions
@@ -45,6 +46,17 @@ class GooseGameWorld(World):
     location_name_to_id: ClassVar[Dict[str, int]] = get_all_location_ids()
     
     item_name_groups = ITEM_GROUPS
+
+    # Validating YAML options
+    def generate_early(self) -> None:
+        if self.options.include_prop_souls.value and not self.options.include_item_pickups.value:
+            raise OptionError("The setting 'Include Prop Souls' requires 'Include Item Pickups' to be enabled in the YAML options.")
+        if self.options.goal.value == 3 and not self.options.include_speedrun_tasks.value:
+            raise OptionError("The goal 'only_speedrun_tasks' requires 'Include Speedrun Tasks' to be enabled in the YAML options.")
+        elif self.options.goal.value == 4 and not self.options.include_extra_tasks.value:
+            raise OptionError("The goal 'all_tasks_no_speedrun' requires 'Include Extra Tasks' to be enabled in the YAML options.")
+        elif self.options.goal.value == 5 and (not self.options.include_speedrun_tasks.value or not self.options.include_extra_tasks.value):
+            raise OptionError("The goal 'all_tasks' requires both 'Include Extra Tasks' and 'Include Speedrun Tasks' to be enabled in the YAML options.")
     
     def create_item(self, name: str) -> Item:
         item_data = item_table[name]
@@ -83,7 +95,7 @@ class GooseGameWorld(World):
             "Model Village Access"
         ]
         
-        # NPC Soul items (10 total) - required for NPC-related goals
+        # NPC Soul items (11 total) - required for NPC-related goals
         npc_souls = [
             "Groundskeeper Soul",
             "Boy Soul",
@@ -95,14 +107,13 @@ class GooseGameWorld(World):
             "Old Man Soul",
             "Pub Lady Soul",
             "Fancy Ladies Soul",
+            "Cook Soul",
         ]
         
         # Prop Soul items - required for picking up/dragging items
-        # NOTE: NPC-tied items (Keys, Gardener Hat, Boy's Glasses, Slipper, Wooly Hat, Pub Cloth)
-        # have been removed - they spawn with their NPCs and don't need separate souls
-        # Vase Piece Soul also removed - pieces spawn when vase is broken
+        # NOTE: NPC-tied items (Keys, Gardener Hat, Boy's Glasses, Slipper, Wooly Hat, Pub Cloth, etc)
         prop_souls = [
-            # Grouped Prop Souls (24 - removed Vase Piece and Slipper)
+            # Grouped Prop Souls (23)
             "Carrot Soul",
             "Tomato Soul",
             "Pumpkin Soul",
@@ -112,7 +123,6 @@ class GooseGameWorld(World):
             "Orange Soul",
             "Leek Soul",
             "Cucumber Soul",
-            "Dart Soul",
             "Umbrella Soul",
             "Tinned Food Soul",
             "Sock Soul",
@@ -120,20 +130,17 @@ class GooseGameWorld(World):
             "Knife Soul",
             "Gumboot Soul",
             "Fork Soul",
-            # REMOVED: "Vase Piece Soul" - pieces spawn when vase is broken
             "Apple Core Soul",
             "Apple Soul",
             "Sandwich Soul",
-            # REMOVED: "Slipper Soul" - slippers spawn with neighbors
             "Bow Soul",
             "Walkie Talkie Soul",
             "Boot Soul",
             "Mini Person Soul",
             
-            # Garden Prop Souls (18 - removed Keys and Gardener Hat)
+            # Garden Prop Souls (17)
             "Radio Soul",
             "Trowel Soul",
-            # REMOVED: "Keys Soul" - keys spawn with Groundskeeper
             "Tulip Soul",
             "Jam Soul",
             "Picnic Mug Soul",
@@ -141,19 +148,15 @@ class GooseGameWorld(World):
             "Straw Hat Soul",
             "Drink Can Soul",
             "Tennis Ball Soul",
-            # REMOVED: "Gardener Hat Soul" - hat spawns with Groundskeeper
             "Rake Soul",
             "Picnic Basket Soul",
             "Esky Soul",
             "Shovel Soul",
             "Watering Can Soul",
-            "Fence Bolt Soul",
             "Mallet Soul",
             "Wooden Crate Soul",
-            "Gardener Sign Soul",
             
-            # High Street Prop Souls (23 - removed Boy's Glasses, moved Boards to Back Gardens)
-            # REMOVED: "Boy's Glasses Soul" - glasses spawn with Boy
+            # High Street Prop Souls (22)
             "Horn-Rimmed Glasses Soul",
             "Red Glasses Soul",
             "Sunglasses Soul",
@@ -171,15 +174,12 @@ class GooseGameWorld(World):
             "Dustbin Lid Soul",
             "Shopping Basket Soul",
             "Push Broom Soul",
-            "Broken Broom Head Soul",
             "Dustbin Soul",
             "Baby Doll Soul",
             "Pricing Gun Soul",
             "Adding Machine Soul",
-            # MOVED: Boards Soul to Back Gardens
             
-            # Back Gardens Prop Souls (26 - added Boards)
-            "Boards Soul",  # MOVED from High Street - boards are at entrance to Back Gardens
+            # Back Gardens Prop Souls (25)
             "Dummy Soul",
             "Cricket Ball Soul",
             "Bust Pipe Soul",
@@ -192,9 +192,10 @@ class GooseGameWorld(World):
             "Soap Soul",
             "Paintbrush Soul",
             "Vase Soul",
-            "Right Strap Soul",
+            "Bra Soul",
             "Rose Soul",
-            "Rose Box Soul",
+            # Removing Rose Box Soul until I can solve the physics issues with it
+            # "Rose Box Soul",
             "Cricket Bat Soul",
             "Tea Pot Soul",
             "Clippers Soul",
@@ -206,14 +207,12 @@ class GooseGameWorld(World):
             "Enamel Jug Soul",
             "Clean Sign Soul",
             
-            # Pub Prop Souls (20 - removed Wooly Hat and Pub Cloth)
+            # Pub Prop Souls (19)
             "Fishing Bobber Soul",
             "Exit Letter Soul",
             "Pint Glass Soul",
             "Toy Boat Soul",
-            # REMOVED: "Wooly Hat Soul" - hat spawns with Old Man
             "Pepper Grinder Soul",
-            # REMOVED: "Pub Cloth Soul" - cloth spawns with Pub Lady
             "Cork Soul",
             "Candlestick Soul",
             "Flower for Vase Soul",
@@ -227,7 +226,6 @@ class GooseGameWorld(World):
             "Dartboard Soul",
             "Mop Bucket Soul",
             "Mop Soul",
-            "Delivery Box Soul",
             "Burly Mans Bucket Soul",
             
             # Model Village Prop Souls (11)
@@ -240,12 +238,18 @@ class GooseGameWorld(World):
             "Easel Soul",
             "Mini Bench Soul",
             "Mini Pump Soul",
-            "Mini Street Bench Soul",
             "Sun Lounge Soul",
             
-            # Victory item soul - required to spawn/pick up the Golden Bell
-            "Golden Bell Soul",
+            # Golden Bell Soul is always required even when prop souls are turned off, so it's not in this list
         ]
+
+        # Add Golden Bell Soul to pool if the chosen goal is to find the bell
+        # If the chosen goal is NOT to find the bell, Golden Bell Soul is placed in pre_fill()
+        if self.options.goal.value == 1:
+            self.multiworld.itempool.append(self.create_item("Golden Bell Soul"))
+
+        # Track items added for filler calculation
+        items_added = 2 # pre-fill item(s) + Golden Bell Soul
         
         # Add area items to pool (except the starting one)
         for item_name in area_items:
@@ -255,8 +259,7 @@ class GooseGameWorld(World):
             else:
                 self.multiworld.itempool.append(self.create_item(item_name))
         
-        # Track items added for filler calculation
-        items_added = 4  # 4 area items in pool (1 is precollected)
+        items_added += 4  # 4 area items in pool (1 is precollected)
         
         # Add NPC souls to pool if option enabled
         if self.options.include_npc_souls:
@@ -361,32 +364,56 @@ class GooseGameWorld(World):
         golden_bell = self.create_item("Golden Bell")
         golden_bell_location = self.multiworld.get_location("Pick up Golden Bell", self.player)
         golden_bell_location.place_locked_item(golden_bell)
-        
-        # Place milestone items based on goal option
+
+        # Pre-fill Golden Bell Soul depending on goal
+        golden_bell_soul = self.create_item("Golden Bell Soul")
         goal = self.options.goal.value
-        if goal == 1:  # All Main Goals
-            milestone_item = self.create_item("All Main Goals Complete")
-            milestone_location = self.multiworld.get_location("All Main Task Lists Complete", self.player)
-            milestone_location.place_locked_item(milestone_item)
-        elif goal == 2:  # All Goals
-            milestone_item = self.create_item("All Goals Complete")
-            milestone_location = self.multiworld.get_location("All Tasks Complete", self.player)
-            milestone_location.place_locked_item(milestone_item)
+        if goal == 0:  # Just reach the bell
+            goal_0_location = self.multiworld.get_location("Get into the Model Village (Golden Bell Soul)", self.player)
+            goal_0_location.place_locked_item(golden_bell_soul)
+        # elif goal == 1:  # Find bell
+        elif goal == 2:  # All main tasks
+            goal_2_location = self.multiworld.get_location("All Main Task Lists Complete (Golden Bell Soul)", self.player)
+            goal_2_location.place_locked_item(golden_bell_soul)
+        elif goal == 3:  # Only speedrun tasks
+            goal_3_location = self.multiworld.get_location("All Speedrun Tasks Complete (Golden Bell Soul)", self.player)
+            goal_3_location.place_locked_item(golden_bell_soul)
+        elif goal == 4:  # All except speedrun tasks
+            goal_4_location = self.multiworld.get_location("All Main Task Lists + To Do (As Well) Complete (Golden Bell Soul)", self.player)
+            goal_4_location.place_locked_item(golden_bell_soul)
+        elif goal == 5:  # All tasks
+            goal_5_location = self.multiworld.get_location("All Tasks Complete (Golden Bell Soul)", self.player)
+            goal_5_location.place_locked_item(golden_bell_soul)
+        elif goal == 6:  # Four Final Tasks
+            goal_6_location = self.multiworld.get_location("Complete the Four Final Area Tasks (Golden Bell Soul)", self.player)
+            goal_6_location.place_locked_item(golden_bell_soul)
     
     def set_rules(self) -> None:
-        from .Rules import set_rules
-        set_rules(self)
+        from .Rules import UntitledGooseRules
+        rules = UntitledGooseRules(self)
+        rules.set_rules()
     
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
             "starting_area": self.get_starting_area_name(),
-            "include_extra_goals": self.options.include_extra_goals.value,
-            "include_speedrun_goals": self.options.include_speedrun_goals.value,
+            "goal": self.options.goal.value,
+            "include_extra_tasks": self.options.include_extra_tasks.value,
+            "include_speedrun_tasks": self.options.include_speedrun_tasks.value,
             "include_item_pickups": self.options.include_item_pickups.value,
             "include_drag_items": self.options.include_drag_items.value,
             "include_interactions": self.options.include_interactions.value,
+            "include_model_church_pecks": self.options.include_model_church_pecks.value,
+            "include_milestone_locations": self.options.include_milestone_locations.value,
             "include_npc_souls": self.options.include_npc_souls.value,
             "include_prop_souls": self.options.include_prop_souls.value,
-            "goal": self.options.goal.value,
+            "filler_amount_mega_honk": self.options.filler_amount_mega_honk.value,
+            "filler_amount_speedy_feet": self.options.filler_amount_speedy_feet.value,
+            "filler_active_silent_steps": self.options.filler_active_silent_steps.value,
+            "filler_amount_goose_day": self.options.filler_amount_goose_day.value,
+            "filler_weight_coins": self.options.filler_weight_coins.value,
+            "trap_weight_tired_goose": self.options.trap_weight_tired_goose.value,
+            "trap_weight_confused_feet": self.options.trap_weight_confused_feet.value,
+            "trap_weight_butterbeak": self.options.trap_weight_butterbeak.value,
+            "trap_weight_suspicious_goose": self.options.trap_weight_suspicious_goose.value,
             "death_link": self.options.death_link.value,
         }

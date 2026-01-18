@@ -82,7 +82,7 @@ namespace GooseGameAP
                 case 406: return "Orange Soul";
                 case 407: return "Leek Soul";
                 case 408: return "Cucumber Soul";
-                case 409: return "Dart Soul";
+                // case 409: return "Dart Soul";
                 case 410: return "Umbrella Soul";
                 case 411: return "Tinned Food Soul";
                 case 412: return "Sock Soul";
@@ -117,10 +117,9 @@ namespace GooseGameAP
                 case 513: return "Esky Soul";
                 case 514: return "Shovel Soul";
                 case 515: return "Watering Can Soul";
-                case 516: return "Fence Bolt Soul";
+                //case 516: return "Fence Bolt Soul";
                 case 517: return "Mallet Soul";
                 case 518: return "Wooden Crate Soul";
-                case 519: return "Gardener Sign Soul";
                 
                 // High Street One-Off Prop Souls (520-543)
                 case 520: return "Boy's Glasses Soul";
@@ -142,12 +141,11 @@ namespace GooseGameAP
                 case 536: return "Dustbin Lid Soul";
                 case 537: return "Shopping Basket Soul";
                 case 538: return "Push Broom Soul";
-                case 539: return "Broken Broom Head Soul";
                 case 540: return "Dustbin Soul";
                 case 541: return "Baby Doll Soul";
                 case 542: return "Pricing Gun Soul";
                 case 543: return "Adding Machine Soul";
-                case 544: return "Boards Soul";
+                case 545: return "Garden Fork Soul";
                 
                 // Back Gardens One-Off Prop Souls (550-574)
                 case 550: return "Dummy Soul";
@@ -162,9 +160,10 @@ namespace GooseGameAP
                 case 559: return "Soap Soul";
                 case 560: return "Paintbrush Soul";
                 case 561: return "Vase Soul";
-                case 562: return "Right Strap Soul";
+                case 562: return "Bra Soul";
                 case 563: return "Rose Soul";
-                case 564: return "Rose Box Soul";
+                // Removing Rose Box Soul until I can solve the physics issues with it
+                // case 564: return "Rose Box Soul";
                 case 565: return "Cricket Bat Soul";
                 case 566: return "Tea Pot Soul";
                 case 567: return "Clippers Soul";
@@ -210,7 +209,6 @@ namespace GooseGameAP
                 case 616: return "Easel Soul";
                 case 617: return "Mini Bench Soul";
                 case 618: return "Mini Pump Soul";
-                case 619: return "Mini Street Bench Soul";
                 case 620: return "Sun Lounge Soul";
                 case 621: return "Golden Bell Soul";
                 
@@ -358,6 +356,14 @@ namespace GooseGameAP
                 case "boot_2": return BASE_ID + 1441;  // Hub boot (near dummyprop)
             }
             
+            // Check for renamed pint bottles ()
+            switch (lowerName)
+            {
+                case "pintbottle_1": return BASE_ID + 1042;  // 
+                case "pintbottle_2": return BASE_ID + 1048;  // 
+                case "pintbottle_3": return BASE_ID + 1049;  // 
+            }
+            
             // Check for renamed topsoil bags (top_1, top_2, top_3)
             switch (lowerName)
             {
@@ -400,7 +406,7 @@ namespace GooseGameAP
                 case "canyellow": return BASE_ID + 1032;
                 case "canorange": return BASE_ID + 1033;
                 case "weedtool": return BASE_ID + 1034;
-                case "forkgarden": return BASE_ID + 1034;  // In-game name for weed tool
+                case "forkgarden": return BASE_ID + 1062;
                 case "lilyflower": return BASE_ID + 1035;
                 case "orange": return BASE_ID + 1036;
                 case "tomato (1)": return BASE_ID + 1037;
@@ -408,14 +414,14 @@ namespace GooseGameAP
                 case "cucumber (1)": return BASE_ID + 1039;
                 case "leek (1)": return BASE_ID + 1040;
                 case "fusilage": return BASE_ID + 1041;
-                case "pintbottle": return BASE_ID + 1042;
+                //case "pintbottle": return BASE_ID + 1042;
                 case "spraybottle": return BASE_ID + 1043;
                 case "walkietalkieb": return BASE_ID + 1044;
                 case "walkietalkie": return BASE_ID + 1045;
                 case "applecore": return BASE_ID + 1046;
                 case "applecore (1)": return BASE_ID + 1058;
                 case "dustbinlid": return BASE_ID + 1047;
-                case "pintbottle (1)": return BASE_ID + 1048;
+                //case "pintbottle (1)": return BASE_ID + 1048;
                 // case "coin": return BASE_ID + 1049;
                 case "chalk": return BASE_ID + 1050;
                 case "tomato (2)": return BASE_ID + 1051;
@@ -453,7 +459,7 @@ namespace GooseGameAP
                 case "rightstrap (1)":
                 case "rightstrap (2)": return BASE_ID + 1090;
                 case "badmintonracket": return BASE_ID + 1093;
-                case "roseprop": return BASE_ID + 1094;  // Spawns when rose is pruned
+                case "roseprop": return BASE_ID + 1094;
                 
                 // Pub items (1101-1130)
                 case "fishingbobberprop": return BASE_ID + 1101;
@@ -502,7 +508,7 @@ namespace GooseGameAP
                 case "miniperson variant - goose": return BASE_ID + 1144;
                 
                 default: 
-                    Log.LogWarning("[ITEM] Unknown item not mapped: " + itemName);
+                    Log.LogWarning("[PICKUP] Unknown item not mapped: " + itemName);
                     return null;
             }
         }
@@ -610,7 +616,7 @@ namespace GooseGameAP
                 case "sunloungeprop": return BASE_ID + 1295;
                 
                 default:
-                    Log.LogWarning("[DRAG] Unknown drag item not mapped: " + itemName);
+                    Log.LogWarning("[DRAG] Unknown item not mapped: " + itemName);
                     return null;
             }
         }
@@ -682,56 +688,72 @@ namespace GooseGameAP
             {
                 case 1: return "Get into the Garden";
                 case 2: return "Get the Groundskeeper Wet";
-                case 3: return "Steal the Garden Keys";
-                case 4: return "Make the Groundskeeper Wear His Hat";
+                case 3: return "Steal the Groundskeeper's Keys";
+                case 4: return "Make the Groundskeeper Wear his Sun Hat";
                 case 5: return "Rake in the Lake";
                 case 6: return "Have a Picnic";
-                case 7: return "Make Groundskeeper Hammer Thumb";
+                case 7: return "Make the Groundskeeper Hammer his Thumb";
                 case 10: return "Break the Broom";
                 case 11: return "Trap the Boy in the Phone Booth";
-                case 12: return "Make Boy Buy Back His Toy";
-                case 13: return "Get the Boy to Do His Shopping";
-                case 14: return "Get into the Shop";
-                case 15: return "Get Woman to Put On Wrong Glasses";
-                case 16: return "Make Someone Buy Garage Thing";
-                case 20: return "Break the Vase";
-                case 21: return "Dress Up the Statue";
-                case 22: return "Make Someone Ring the Bell";
-                case 23: return "Win Ribbon";
-                case 24: return "Make Man Go Barefoot";
+                case 12: return "Make the Boy Wear the Wrong Glasses";
+                case 13: return "Make Someone Buy Back Their Own Stuff";
+                case 14: return "Get on TV";
+                case 15: return "Go Shopping";
+                case 16: return "Trap the Shopkeeper in the Garage";
+                case 20: return "Make Someone Break the Fancy Vase";
+                case 21: return "Help the Woman Dress Up the Bust";
+                case 22: return "Make the Man Spit Out his Tea";
+                case 23: return "Get Dressed Up with a Ribbon";
+                case 24: return "Make the Man Go Barefoot";
                 case 25: return "Do the Washing";
-                case 26: return "Make Prune Prune";
-                case 30: return "Get Into the Pub";
-                case 31: return "Steal Old Man's Woolly Hat";
-                case 32: return "Set Sail the Toy Boat";
-                case 33: return "Get Old Man to Fall on Ground";
+                case 26: return "Make Someone Prune the Prize Rose";
+                case 30: return "Get into the Pub";
+                case 31: return "Break the Dartboard";
+                case 32: return "Get the Toy Boat";
+                case 33: return "Make the Old Man Fall on his Bum";
                 case 34: return "Be Awarded a Flower";
-                case 35: return "Steal a Pint Glass";
+                case 35: return "Steal a Pint Glass and Drop it in the Canal";
                 case 36: return "Set the Table";
-                case 37: return "Drop a Bucket on Burly Man";
-                case 40: return "Get Into the Model Village";
-                case 41: return "Steal the Bell";
-                case 42: return "Return the Bell";
-                case 50: return "Lock Groundskeeper Out";
+                case 37: return "Drop a Bucket on the Burly Man's Head";
+                case 40: return "Get into the Model Village";
+                case 41: return "Steal the Beautiful Miniature Golden Bell";
+                case 42: return "...and Take it All the Way Back Home";
+                case 50: return "Lock the Groundskeeper Out of the Garden";
                 case 51: return "Cabbage Picnic";
-                case 52: return "Trip the Boy in Puddle";
-                case 53: return "Weigh on Scales";
-                case 54: return "Make Man with Umbrella Fall";
-                case 55: return "Collect 5 Items from Shops";
-                case 56: return "Trap Shop Lady in Garage";
-                case 60: return "Get Wimp Shut in Garage";
-                case 61: return "Catch an object as it's thrown over the fence";
-                case 62: return "Get Thrown Over Fence";
-                case 63: return "Dress Up Second Bust";
+                case 52: return "Trip the Boy in the Puddle";
+                case 53: return "Make the Shop Scales Go Ding";
+                case 54: return "Open an Umbrella Inside the TV Shop";
+                case 55: return "Make Someone From Outside High Street Buy Back Their Own Stuff";
+                case 56: return "Collect the Five Flowers";
+                case 60: return "Trap the Boy in the Garage";
+                case 61: return "Catch an Object as it's Thrown Over the Fence";
+                case 62: return "Get Thrown Over the Fence";
+                case 63: return "Dress Up the Bust with Things from Outside the Back Garden";
                 case 64: return "Score a Goal";
-                case 65: return "Sail Boat Under Bridge";
-                case 66: return "Perform on TV with Ribbon";
-                case 67: return "Steal Old Man's Watch";
+                case 65: return "Sail the Toy Boat Under a Bridge";
+                case 66: return "Perform at the Pub Wearing a Ribbon";
+                case 67: return "Steal the Old Man's Woolen Hat";
                 case 70: return "Garden Speedrun";
                 case 71: return "High Street Speedrun";
                 case 72: return "Back Gardens Speedrun";
                 case 73: return "Pub Speedrun";
                 case 80: return "100% Completion";
+
+                // Milestone goals
+                case 81: return "All Garden Tasks Complete";
+                case 82: return "All High Street Tasks Complete";
+                case 83: return "All Back Gardens Tasks Complete";
+                case 84: return "All Pub Tasks Complete";
+                case 85: return "All To Do (As Well) Tasks Complete";
+                case 86: return "All Speedrun Tasks Complete";
+                case 87: return "All Speedrun Tasks Complete (Golden Bell Soul)";
+                case 88: return "All Main Task Lists Complete";
+                case 89: return "All Main Task Lists Complete (Golden Bell Soul)";
+                case 90: return "All Tasks Complete";
+                case 91: return "All Tasks Complete (Golden Bell Soul)";
+                case 92: return "All Main Task Lists + To Do (As Well) Complete (Golden Bell Soul)";
+                case 93: return "Get into the Model Village (Golden Bell Soul)";
+                case 94: return "Complete the Four Final Area Tasks (Golden Bell Soul)";
                 
                 // Pickups - generic names since there are many
                 case 1001: return "Pickup Boot";
@@ -776,7 +798,7 @@ namespace GooseGameAP
                 case 1220: return "Drag Broom";
                 case 1221: return "Drag Dustpan";
                 case 1222: return "Drag Bucket";
-                case 1223: return "Drag Soap";
+                case 1223: return "Drag Broken Broom Head";
                 case 1224: return "Drag Golden Statue";
                 case 1225: return "Drag Bust 1";
                 case 1226: return "Drag Bust 2";
@@ -870,6 +892,9 @@ namespace GooseGameAP
                 case 1382: return "Peck Model Church Tower 14";
                 case 1383: return "Peck Model Church Tower 15";
                 case 1384: return "Peck Model Church Tower 16";
+                
+                case 1390: return "Peck Model Church Doorway";
+                case 1391: return "Peck Model Church Tower";
                 
                 // Renamed pickups (1401-1452)
                 case 1401: return "Pickup Carrot 1";

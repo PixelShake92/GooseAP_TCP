@@ -222,7 +222,13 @@ namespace GooseGameAP
             {
                 WarpToHub();
             }
-            
+
+            // 0 key: Warp to Start (only if not holding anything)
+            if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
+            {
+                WarpToStart();
+            }
+
             // Number keys 1-5: Warp to areas (if unlocked and not holding anything)
             if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             {
@@ -464,6 +470,22 @@ namespace GooseGameAP
             UI?.ShowNotification("Warped to Hub!");
         }
         
+        /// <summary>
+        /// Warp the goose to the Start (around the tree stump) - only works if not holding/dragging anything
+        /// </summary>
+        public void WarpToStart()
+        {
+            if (!CanWarp(out string reason))
+            {
+                UI?.ShowNotification(reason);
+                return;
+            }
+            
+            // All clear - teleport to start
+            GateManager?.TeleportGooseToStart();
+            UI?.ShowNotification("Warped to Start!");
+        }
+        
         private void HandleGateSyncTiming()
         {
             if (Client == null) return;
@@ -578,7 +600,155 @@ namespace GooseGameAP
             if (!checkedLocations.Contains(locationId))
             {
                 checkedLocations.Add(locationId);
+                Log.LogInfo($"[LOC-PLUGIN] Sending location check: {locationId} = {LocationMappings.GetLocationName(locationId)}");
                 Client?.SendLocationCheck(locationId);
+
+                CheckSendGoalLocations(locationId);
+            }
+        }
+
+        public void CheckSendGoalLocations(long locationId)
+        {
+            long offset = locationId - BASE_ID;
+
+            switch (offset)
+            {
+                case 1: case 2: case 3: case 4: case 5: case 6: //All Garden Tasks Complete
+                    if (checkedLocations.Contains(1 + BASE_ID) && checkedLocations.Contains(2 + BASE_ID)
+                        && checkedLocations.Contains(3 + BASE_ID) && checkedLocations.Contains(4 + BASE_ID) && checkedLocations.Contains(5 + BASE_ID)
+                        && checkedLocations.Contains(6 + BASE_ID) && checkedLocations.Contains(7 + BASE_ID))
+                    {
+                        SendLocationCheck(81 + BASE_ID);
+                    }
+                    break;
+                case 7: //All Garden Tasks Complete, and Four Final Tasks
+                    if (checkedLocations.Contains(1 + BASE_ID) && checkedLocations.Contains(2 + BASE_ID)
+                        && checkedLocations.Contains(3 + BASE_ID) && checkedLocations.Contains(4 + BASE_ID) && checkedLocations.Contains(5 + BASE_ID)
+                        && checkedLocations.Contains(6 + BASE_ID) && checkedLocations.Contains(7 + BASE_ID))
+                    {
+                        SendLocationCheck(81 + BASE_ID);
+                    }
+                    if (checkedLocations.Contains(7 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID)
+                        && checkedLocations.Contains(26 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(94 + BASE_ID);
+                    }
+                    break;
+                case 10: case 11: case 12: case 13: case 14: case 15: // All High Street Tasks Complete
+                    if (checkedLocations.Contains(10 + BASE_ID) && checkedLocations.Contains(11 + BASE_ID)
+                        && checkedLocations.Contains(12 + BASE_ID) && checkedLocations.Contains(13 + BASE_ID) && checkedLocations.Contains(14 + BASE_ID)
+                        && checkedLocations.Contains(15 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID))
+                    {
+                        SendLocationCheck(82 + BASE_ID);
+                    }
+                    break;
+                case 16: // All High Street Tasks Complete, and Four Final Tasks
+                    if (checkedLocations.Contains(10 + BASE_ID) && checkedLocations.Contains(11 + BASE_ID)
+                        && checkedLocations.Contains(12 + BASE_ID) && checkedLocations.Contains(13 + BASE_ID) && checkedLocations.Contains(14 + BASE_ID)
+                        && checkedLocations.Contains(15 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID))
+                    {
+                        SendLocationCheck(82 + BASE_ID);
+                    }
+                    if (checkedLocations.Contains(7 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID)
+                        && checkedLocations.Contains(26 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(94 + BASE_ID);
+                    }
+                    break;
+                case 20: case 21: case 22: case 23: case 24: case 25: // All Back Gardens Tasks Complete
+                    if (checkedLocations.Contains(20 + BASE_ID) && checkedLocations.Contains(21 + BASE_ID)
+                        && checkedLocations.Contains(22 + BASE_ID) && checkedLocations.Contains(23 + BASE_ID) && checkedLocations.Contains(24 + BASE_ID)
+                        && checkedLocations.Contains(25 + BASE_ID) && checkedLocations.Contains(26 + BASE_ID))
+                    {
+                        SendLocationCheck(83 + BASE_ID);
+                    }
+                    break;
+                case 26: // All Back Gardens Tasks Complete, and Four Final Tasks
+                    if (checkedLocations.Contains(20 + BASE_ID) && checkedLocations.Contains(21 + BASE_ID)
+                        && checkedLocations.Contains(22 + BASE_ID) && checkedLocations.Contains(23 + BASE_ID) && checkedLocations.Contains(24 + BASE_ID)
+                        && checkedLocations.Contains(25 + BASE_ID) && checkedLocations.Contains(26 + BASE_ID))
+                    {
+                        SendLocationCheck(83 + BASE_ID);
+                    }
+                    if (checkedLocations.Contains(7 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID)
+                        && checkedLocations.Contains(26 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(94 + BASE_ID);
+                    }
+                    break;
+                case 30: case 31: case 32: case 33: case 34: case 35: case 36: // All Pub Tasks Complete
+                    if (checkedLocations.Contains(30 + BASE_ID) && checkedLocations.Contains(31 + BASE_ID) && checkedLocations.Contains(32 + BASE_ID)
+                        && checkedLocations.Contains(33 + BASE_ID) && checkedLocations.Contains(34 + BASE_ID) && checkedLocations.Contains(35 + BASE_ID)
+                        && checkedLocations.Contains(36 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(84 + BASE_ID);
+                    }
+                    break;
+                case 37: // All Pub Tasks Complete, and Four Final Tasks
+                    if (checkedLocations.Contains(30 + BASE_ID) && checkedLocations.Contains(31 + BASE_ID) && checkedLocations.Contains(32 + BASE_ID)
+                        && checkedLocations.Contains(33 + BASE_ID) && checkedLocations.Contains(34 + BASE_ID) && checkedLocations.Contains(35 + BASE_ID)
+                        && checkedLocations.Contains(36 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(84 + BASE_ID);
+                    }
+                    if (checkedLocations.Contains(7 + BASE_ID) && checkedLocations.Contains(16 + BASE_ID)
+                        && checkedLocations.Contains(26 + BASE_ID) && checkedLocations.Contains(37 + BASE_ID))
+                    {
+                        SendLocationCheck(94 + BASE_ID);
+                    }
+                    break;
+                case 40:
+                    SendLocationCheck(93 + BASE_ID);
+                    break;
+                case 50: case 51: case 52: case 53: case 54: case 55: case 56: // All To Do (As Well) Tasks Complete
+                case 60: case 61: case 62: case 63: case 64: case 65: case 66: case 67: // - should only be enabled if post-game goals are enabled
+                    if (checkedLocations.Contains(50 + BASE_ID) && checkedLocations.Contains(51 + BASE_ID) && checkedLocations.Contains(52 + BASE_ID)
+                        && checkedLocations.Contains(53 + BASE_ID) && checkedLocations.Contains(54 + BASE_ID) && checkedLocations.Contains(55 + BASE_ID)
+                        && checkedLocations.Contains(56 + BASE_ID) && checkedLocations.Contains(60 + BASE_ID) && checkedLocations.Contains(61 + BASE_ID)
+                        && checkedLocations.Contains(62 + BASE_ID) && checkedLocations.Contains(63 + BASE_ID) && checkedLocations.Contains(64 + BASE_ID)
+                        && checkedLocations.Contains(65 + BASE_ID) && checkedLocations.Contains(66 + BASE_ID) && checkedLocations.Contains(67 + BASE_ID))
+                    {
+                        SendLocationCheck(85 + BASE_ID);
+                    }
+                    break;
+                case 70: case 71: // All Speedrun Tasks Complete
+                case 72: case 73: // - should only be enabled if speedrun goals are enabled
+                    if (checkedLocations.Contains(70 + BASE_ID) && checkedLocations.Contains(71 + BASE_ID)
+                        && checkedLocations.Contains(72 + BASE_ID) && checkedLocations.Contains(73 + BASE_ID))
+                    {
+                        SendLocationCheck(86 + BASE_ID);
+                        SendLocationCheck(87 + BASE_ID);
+                    }
+                    break;
+                case 81: case 82:
+                case 83: case 84:
+                    if (checkedLocations.Contains(81 + BASE_ID) && checkedLocations.Contains(82 + BASE_ID)
+                        && checkedLocations.Contains(83 + BASE_ID) && checkedLocations.Contains(84 + BASE_ID))
+                    {
+                        SendLocationCheck(88 + BASE_ID);
+                        SendLocationCheck(89 + BASE_ID);
+                    }
+                    break;
+                case 85: case 86: case 88:
+                    if (checkedLocations.Contains(85 + BASE_ID) && checkedLocations.Contains(86 + BASE_ID) && checkedLocations.Contains(88 + BASE_ID))
+                    {
+                        SendLocationCheck(90 + BASE_ID);
+                        SendLocationCheck(91 + BASE_ID);
+                        SendLocationCheck(92 + BASE_ID);
+                    }
+                    else if (checkedLocations.Contains(85 + BASE_ID) && checkedLocations.Contains(88 + BASE_ID))
+                    {
+                        SendLocationCheck(92 + BASE_ID);
+                    }
+                    break;
+
+                // Model church first-time pecks
+                case 1350:
+                    SendLocationCheck(1390 + BASE_ID);
+                    break;
+                case 1369:
+                    SendLocationCheck(1391 + BASE_ID);
+                    break;
             }
         }
         
@@ -598,6 +768,7 @@ namespace GooseGameAP
             foreach (var id in locationIds)
             {
                 checkedLocations.Add(id);
+                CheckSendGoalLocations(id);
             }
             Log.LogInfo($"[AP] Loaded {locationIds.Count} checked locations from server");
         }
@@ -820,6 +991,7 @@ namespace GooseGameAP
             long? locationId = LocationMappings.GetGoalLocationId(goalName);
             if (locationId.HasValue)
             {
+                Log.LogInfo($"[LOC-PLUGIN] Sending goal location check: {goalName}");
                 SendLocationCheck(locationId.Value);
             }
         }

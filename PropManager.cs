@@ -20,8 +20,24 @@ namespace GooseGameAP
         
         // Cache of props by soul type
         private Dictionary<string, List<GameObject>> propCache = new Dictionary<string, List<GameObject>>();
+
+        private Dictionary<string, List<Prop>> propCacheUsingProps = new Dictionary<string, List<Prop>>();
         
         private bool hasScannedProps = false;
+        
+        // Props that are ignored when connecting prop names to souls in the dictionary
+        private static readonly List<string> IgnoredProps = new List<string>
+        {
+            "dart",
+            "tomatobox",
+            "roseboxprop",
+        };
+        
+        // Prop names that have to be a perfect match in the PropToSoul dictionary so that they aren't erroneously attached to the wrong souls
+        private static readonly List<string> PerfectMatchOnlyProps = new List<string>
+        {
+            "minishovelprop",
+        };
         
         // Map item name patterns to soul names
         private static readonly Dictionary<string, string> PropToSoul = new Dictionary<string, string>
@@ -40,7 +56,6 @@ namespace GooseGameAP
             { "orange", "Orange Soul" },
             { "leek", "Leek Soul" },
             { "cucumber", "Cucumber Soul" },
-            { "dart", "Dart Soul" },
             { "umbrella", "Umbrella Soul" },
             { "bluecan", "Tinned Food Soul" },
             { "orangecan", "Tinned Food Soul" },
@@ -53,14 +68,9 @@ namespace GooseGameAP
             { "knife", "Knife Soul" },
             { "gumboot", "Gumboot Soul" },
             { "fork", "Fork Soul" },
-            // REMOVED: Vase pieces spawn when vase is broken
-            // { "brokenvasepiece", "Vase Piece Soul" },
-            // { "brokenbit", "Vase Piece Soul" },
             { "applecore", "Apple Core Soul" },
             { "apple", "Apple Soul" },
             { "sandwich", "Sandwich Soul" },
-            // REMOVED: Slippers spawn with neighbors
-            // { "slipper", "Slipper Soul" },
             { "bow", "Bow Soul" },
             { "walkietalkie", "Walkie Talkie Soul" },
             { "boot", "Boot Soul" },
@@ -68,11 +78,8 @@ namespace GooseGameAP
             
             // Garden one-offs
             { "radio", "Radio Soul" },
+            { "radiosmall", "Radio Soul" },
             { "trowel", "Trowel Soul" },
-            // REMOVED: Keys spawn with Groundskeeper
-            // { "keys", "Keys Soul" },
-            // { "keyring", "Keys Soul" },
-            // { "carkeys", "Keys Soul" },
             { "tulip", "Tulip Soul" },
             { "jam", "Jam Soul" },
             { "picnicmug", "Picnic Mug Soul" },
@@ -81,32 +88,17 @@ namespace GooseGameAP
             { "sunhat", "Straw Hat Soul" },
             { "drinkcan", "Drink Can Soul" },
             { "tennisball", "Tennis Ball Soul" },
-            // REMOVED: Gardener Hat spawns with Groundskeeper
-            // { "gardenerhat", "Gardener Hat Soul" },
-            // { "gardenershat", "Gardener Hat Soul" },
-            // { "hatgardener", "Gardener Hat Soul" },
-            // { "gardenerssunhat", "Gardener Hat Soul" },
             { "rake", "Rake Soul" },
-            { "picnicbasket", "Picnic Basket Soul" },
-            { "picnicbaskethandle", "Picnic Basket Soul" },
-            { "baskethandle", "Picnic Basket Soul" },
+            { "basket", "Picnic Basket Soul" },  // Short name from hierarchy
             { "esky", "Esky Soul" },
             { "coolbox", "Esky Soul" },
             { "shovel", "Shovel Soul" },
             { "wateringcan", "Watering Can Soul" },
-            { "fencebolt", "Fence Bolt Soul" },
-            { "boltbent", "Fence Bolt Soul" },
             { "mallet", "Mallet Soul" },
             { "woodencrate", "Wooden Crate Soul" },
             { "cratewooden", "Wooden Crate Soul" },
-            { "gardenersign", "Gardener Sign Soul" },
             
             // High Street one-offs
-            // REMOVED: Boy's Glasses spawn with Boy
-            // { "boysglasses", "Boy's Glasses Soul" },
-            // { "boyglasses", "Boy's Glasses Soul" },
-            // { "glassesboy", "Boy's Glasses Soul" },
-            // { "wimpglasses", "Boy's Glasses Soul" },
             { "hornrimmedglasses", "Horn-Rimmed Glasses Soul" },
             { "redglasses", "Red Glasses Soul" },
             { "sunglasses", "Sunglasses Soul" },
@@ -119,28 +111,21 @@ namespace GooseGameAP
             { "dishwashbottle", "Dish Soap Bottle Soul" },
             { "spraybottle", "Spray Bottle Soul" },
             { "weedtool", "Weed Tool Soul" },
-            { "forkgarden", "Weed Tool Soul" },  // In-game name for weed tool
+            { "forkgarden", "Weed Tool Soul" },
             { "lilyflower", "Lily Flower Soul" },
             { "fusilage", "Fusilage Soul" },
             { "coin", "Coin" },
             { "chalk", "Chalk Soul" },
             { "dustbinlid", "Dustbin Lid Soul" },
-            { "shoppingbasket", "Shopping Basket Soul" },
-            { "shopbasket", "Shopping Basket Soul" },
-            { "basketprop", "Picnic Basket Soul" },
-            { "basket", "Picnic Basket Soul" },  // Short name from hierarchy
+            { "basketprop", "Shopping Basket Soul" },
             { "top", "Topsoil Bag Soul" },  // Short name after cleaning top_1, top_2, top_3
             { "pushbroom", "Push Broom Soul" },
-            // REMOVED: Broom head pieces spawn when broom is broken
-            // { "brokenbroomhead", "Broken Broom Head Soul" },
-            // { "broomheadseperate", "Broken Broom Head Soul" },
             { "dustbin", "Dustbin Soul" },
             { "babydoll", "Baby Doll Soul" },
             { "pricinggun", "Pricing Gun Soul" },
             { "addingmachine", "Adding Machine Soul" },
             
             // Back Gardens one-offs
-            { "bra", "Bra Soul" },
             { "dummy", "Dummy Soul" },
             { "cricketball", "Cricket Ball Soul" },
             { "bustpipe", "Bust Pipe Soul" },
@@ -153,9 +138,10 @@ namespace GooseGameAP
             { "soap", "Soap Soul" },
             { "paintbrush", "Paintbrush Soul" },
             { "vase", "Vase Soul" },
-            { "rightstrap", "Right Strap Soul" },
+            { "rightstrap", "Bra Soul" },
             { "rose", "Rose Soul" },
-            { "rosebox", "Rose Box Soul" },
+            // Removing Rose Box Soul until I can solve the physics issues with it
+            // { "roseboxprop", "Rose Box Soul" },
             { "cricketbat", "Cricket Bat Soul" },
             { "teapot", "Tea Pot Soul" },
             { "clippers", "Clippers Soul" },
@@ -176,12 +162,7 @@ namespace GooseGameAP
             { "exitletter", "Exit Letter Soul" },
             { "pintglass", "Pint Glass Soul" },
             { "toyboat", "Toy Boat Soul" },
-            // REMOVED: Wooly Hat spawns with Old Man
-            // { "woolyhat", "Wooly Hat Soul" },
-            // { "woollyhat", "Wooly Hat Soul" },
             { "peppergrinder", "Pepper Grinder Soul" },
-            // REMOVED: Pub Cloth spawns with Pub Lady
-            // { "pubcloth", "Pub Cloth Soul" },
             { "cork", "Cork Soul" },
             { "candlestick", "Candlestick Soul" },
             { "flowerforvase", "Flower for Vase Soul" },
@@ -206,7 +187,7 @@ namespace GooseGameAP
             // Model Village one-offs
             { "minimailpillar", "Mini Mail Pillar Soul" },
             { "miniphonedoor", "Mini Phone Door Soul" },
-            { "minishovel", "Mini Shovel Soul" },
+            { "minishovelprop", "Mini Shovel Soul" },
             { "poppyflower", "Poppy Flower Soul" },
             { "flowerpoppy", "Poppy Flower Soul" },
             { "timberhandle", "Timber Handle Soul" },
@@ -214,9 +195,9 @@ namespace GooseGameAP
             { "easel", "Easel Soul" },
             { "minibench", "Mini Bench Soul" },
             { "minipump", "Mini Pump Soul" },
-            { "ministreetbench", "Mini Street Bench Soul" },
-            { "streetbench", "Mini Street Bench Soul" },
-            { "benchstreet", "Mini Street Bench Soul" },
+            { "ministreetbench", "Mini Bench Soul" },
+            { "streetbench", "Mini Bench Soul" },
+            { "benchstreet", "Mini Bench Soul" },
             { "sunlounge", "Sun Lounge Soul" },
             
             // Victory item
@@ -239,8 +220,7 @@ namespace GooseGameAP
         // (drag blocking handled separately in Patches.cs)
         private static readonly HashSet<string> AlwaysEnabledProps = new HashSet<string>
         {
-            "Fence Bolt Soul",  // Needed to open intro gate - starting item
-            "Drawer Soul"       // Drawer must exist for desk-breaking mechanic to work
+            // "Drawer Soul"       // Drawer must exist for desk-breaking mechanic to work
                                 // Player still needs soul to drag it
         };
         
@@ -308,11 +288,26 @@ namespace GooseGameAP
             int count = 0;
             foreach (var kvp in propCache)
             {
+                bool shouldEnable = true;
+                string soul = kvp.Key;
+                if (soul == "goldenbell")
+                {
+                    if (!receivedSouls.Contains(soul))
+                    {
+                        shouldEnable = false;
+                        Log.LogInfo($"[Prop] Preventing Golden Bell Soul from being enabled as it has not yet been received");
+                    }
+                    else
+                    {
+                        Log.LogInfo($"[Prop] Enabling Golden Bell Soul as it has already been received");
+                    }
+                }
+
                 foreach (var prop in kvp.Value)
                 {
                     if (prop != null)
                     {
-                        prop.SetActive(true);
+                        prop.SetActive(shouldEnable);
                         count++;
                     }
                 }
@@ -332,6 +327,63 @@ namespace GooseGameAP
             
             try
             {
+                GameObject bra = null;
+                GameObject drawer = null;
+                GameObject drawer2 = null;
+                GameObject drawer3 = null;
+                GameObject drawer4 = null;
+                GameObject drawer5 = null;
+                GameObject picnicBasket1 = null;
+                GameObject picnicBasket2 = null;
+
+                var checkAllGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+                Log.LogInfo($"[Prop] Found {checkAllGameObjects.Length} GameObjects");
+                foreach (var gameObj in checkAllGameObjects)
+                {
+                    if (gameObj == null) continue;
+                    // Log.LogInfo($"[Prop DEBUG] Noting existence of game object with name: '{gameObj.name}'");
+                    if (gameObj.name == "braSkinned")
+                    {
+                        bra = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for bra");
+                    }
+                    else if (gameObj.name == "drawer starting home")
+                    {
+                        drawer = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for drawer");
+                    }
+                    else if (gameObj.name == "drawer")
+                    {
+                        drawer2 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for drawer2");
+                    }
+                    else if (gameObj.name == "postBreakDrawerHome")
+                    {
+                        drawer3 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for drawer3");
+                    }
+                    else if (gameObj.name == "drawerBreakerTrigger")
+                    {
+                        drawer4 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for drawer4");
+                    }
+                    else if (gameObj.name == "drawerAssembledHome")
+                    {
+                        drawer5 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for drawer5");
+                    }
+                    else if (gameObj.name == "basketHandle1")
+                    {
+                        picnicBasket1 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for picnicBasket1");
+                    }
+                    else if (gameObj.name == "basketHandle2")
+                    {
+                        picnicBasket2 = gameObj;
+                        Log.LogInfo($"[Prop] Using '{gameObj.name}' for picnicBasket2");
+                    }
+                }
+
                 var allProps = UnityEngine.Object.FindObjectsOfType<Prop>();
                 Log.LogInfo($"[Prop] Found {allProps.Length} props total");
                 List<Prop> cloneCleanedPropsList = new List<Prop>();
@@ -340,7 +392,7 @@ namespace GooseGameAP
                 foreach (var prop in allProps)
                 {
                     if (prop == null) continue;
-                    if (logCount < 20)
+                    if (logCount < 20)//500)
                     {
                         string cleanName = CleanPropName(prop.name);
                         Log.LogInfo($"[Prop DEBUG] Raw: '{prop.name}' -> Clean: '{cleanName}'");
@@ -361,14 +413,15 @@ namespace GooseGameAP
                     
                     // Debug logging for problematic props
                     string lowerName = prop.name.ToLower();
-                    if (lowerName.Contains("mop") || lowerName.Contains("basket") || 
-                        lowerName.Contains("top") || lowerName.Contains("duck"))
+                    if (lowerName.Contains("mop") || lowerName.Contains("top") ||
+                        lowerName.Contains("duck") || lowerName.Contains("rose") )
                     {
                         string hierarchy = GetHierarchy(prop.transform);
                         Log.LogInfo($"[Prop HIERARCHY] {prop.name}: {hierarchy}");
                     }
                 }
                 
+                // Log.LogInfo($"[Prop DEBUG] Cleaned list made");
                 int matched = 0;
                 int unmatched = 0;
                 
@@ -382,12 +435,54 @@ namespace GooseGameAP
                     if (soul != null)
                     {
                         if (!propCache.ContainsKey(soul))
+                        {
                             propCache[soul] = new List<GameObject>();
+                            propCacheUsingProps[soul] = new List<Prop>();
+                        }
                         
                         // Get the appropriate object to disable - check for parent containers
                         GameObject objToCache = GetDisableTarget(prop.gameObject, cleanName);
+                        if (objToCache == null)
+                        {
+                            if (cleanName == "rightstrap")
+                            {
+                                if (bra != null)
+                                {
+                                    Log.LogInfo($"[Prop DEBUG] Forcing soul match for: '{cleanName}'. Attached to: '{soul}'. '{prop.name}' added to propCacheUsingProps");
+                                    propCache[soul].Add(bra);
+                                    propCacheUsingProps[soul].Add(prop);
+                                }
+                            }
+                            else if (cleanName == "drawer")
+                            {
+                                if (drawer != null && drawer2 != null && drawer3 != null && drawer4 != null && drawer5 != null)
+                                {
+                                    Log.LogInfo($"[Prop DEBUG] Forcing soul match for: '{cleanName}'. Attached to: '{soul}'. '{prop.name}' added to propCacheUsingProps");
+                                    propCache[soul].Add(drawer);
+                                    propCache[soul].Add(drawer2);
+                                    propCache[soul].Add(drawer3);
+                                    propCache[soul].Add(drawer4);
+                                    propCache[soul].Add(drawer5);
+                                    propCacheUsingProps[soul].Add(prop);
+                                }
+                            }
+                            else if (cleanName == "basket")
+                            {
+                                if (picnicBasket1 != null && picnicBasket2 != null)
+                                {
+                                    Log.LogInfo($"[Prop DEBUG] Forcing soul match for: '{cleanName}'. Attached to: '{soul}'. '{prop.name}' added to propCacheUsingProps");
+                                    propCache[soul].Add(prop.gameObject);
+                                    propCache[soul].Add(picnicBasket1);
+                                    propCache[soul].Add(picnicBasket2);
+                                    propCacheUsingProps[soul].Add(prop);
+                                }
+                            }
+                            continue;
+                        }
                         propCache[soul].Add(objToCache);
+                        propCacheUsingProps[soul].Add(prop);
                         matched++;
+                        Log.LogInfo($"[Prop] Soul match for: '{objToCache.name}'. Attached to: '{soul}'. '{prop.name}' added to propCacheUsingProps");
                     }
                     else
                     {
@@ -402,6 +497,10 @@ namespace GooseGameAP
                 {
                     Log.LogInfo($"[Prop] {kvp.Key}: {kvp.Value.Count} props");
                 }
+                /*foreach (var kvp in propCacheUsingProps)
+                {
+                    Log.LogInfo($"[Prop DEBUG] (Using props) {kvp.Key}: {kvp.Value.Count} props");
+                }*/
             }
             catch (System.Exception ex)
             {
@@ -453,6 +552,12 @@ namespace GooseGameAP
                     Log.LogInfo($"[Prop] Using parent '{current.parent.name}' for topsoil");
                     return current.parent.gameObject;
                 }
+
+                // Objects that need to be handled differently (eg, bra). basket is == instead of Contains else it ruins the shopping basket
+                if (cleanName.Contains("rightstrap") && parentName == "brahome" || cleanName.Contains("drawer") || cleanName == "basket")
+                {
+                    return null;
+                }
             }
             
             // Default - just use the prop's own GameObject
@@ -492,6 +597,10 @@ namespace GooseGameAP
         
         private string GetSoulForProp(string cleanName)
         {
+            // Check if cleanname is in list of props to ignore first, skip if so
+            if (IgnoredProps.Contains(cleanName))
+                return null;
+
             // Direct match first
             if (PropToSoul.TryGetValue(cleanName, out string soul))
                 return soul;
@@ -499,15 +608,21 @@ namespace GooseGameAP
             // Check if cleanName starts with or contains a key
             foreach (var kvp in PropToSoul)
             {
-                if (cleanName.StartsWith(kvp.Key) || cleanName.Contains(kvp.Key))
+                if (!PerfectMatchOnlyProps.Contains(kvp.Key) && (cleanName.StartsWith(kvp.Key) || cleanName.Contains(kvp.Key)))
+                {
+                    //Log.LogInfo($"[Prop DEBUG] cleanname '{cleanName}' .StartsWith or .Contains soul: '{kvp.Key}'");
                     return kvp.Value;
+                }
             }
             
             // Check if a key starts with or contains cleanName (for short names like "top", "basket")
             foreach (var kvp in PropToSoul)
             {
-                if (kvp.Key.StartsWith(cleanName) || kvp.Key.Contains(cleanName))
+                if (!PerfectMatchOnlyProps.Contains(kvp.Key) && (kvp.Key.StartsWith(cleanName) || kvp.Key.Contains(cleanName)))
+                {
+                    //Log.LogInfo($"[Prop DEBUG] soul '{kvp.Key}' .StartsWith or .Contains cleanname: '{cleanName}'");
                     return kvp.Value;
+                }
             }
             
             return null;
@@ -525,6 +640,7 @@ namespace GooseGameAP
                 return;
             }
             
+            int enabledCount = 0;
             foreach (var kvp in propCache)
             {
                 string soul = kvp.Key;
@@ -536,11 +652,32 @@ namespace GooseGameAP
                     if (prop != null)
                     {
                         prop.SetActive(shouldEnable);
+                        //Log.LogInfo($"[Prop DEBUG] {prop.name} set active");
+
+                        if (shouldEnable)
+                        {
+                            enabledCount++;
+                        }
+
+                        // Special handling for physics-based props that may need Rigidbody reset
+                        ResetPhysicsIfNeeded(prop);
+                    }
+                }
+                if (propCacheUsingProps.TryGetValue(soul, out var actualProps))
+                {
+                    foreach (var actualProp in actualProps)
+                    {
+                        if (actualProp != null)
+                        {
+                            actualProp.ResetPosition();
+                            //Log.LogInfo($"[Prop DEBUG] Reset position of: {actualProp.name}");
+                        }
                     }
                 }
             }
             
             Log.LogInfo($"[Prop] Applied states for {receivedSouls.Count} received souls (+ always-enabled props)");
+            Log.LogInfo($"[Prop] Enabled {enabledCount} total props");
         }
         
         /// <summary>
@@ -566,11 +703,22 @@ namespace GooseGameAP
                     if (prop != null)
                     {
                         prop.SetActive(true);
-                    
+
                         // Special handling for physics-based props that may need Rigidbody reset
-                        ResetPhysicsIfNeeded(prop, soulName);
+                        ResetPhysicsIfNeeded(prop);
                         
                         Log.LogInfo($"[Prop] Enabled: {prop.name}");
+                    }
+                }
+                if (propCacheUsingProps.TryGetValue(soulName, out var actualProps))
+                {
+                    foreach (var actualProp in actualProps)
+                    {
+                        if (actualProp != null)
+                        {
+                            actualProp.ResetPosition();
+                            Log.LogInfo($"[Prop] Reset position of: {actualProp.name}");
+                        }
                     }
                 }
             }
@@ -626,7 +774,7 @@ namespace GooseGameAP
         /// <summary>
         /// Reset physics components for props that need it after being enabled
         /// </summary>
-        private void ResetPhysicsIfNeeded(GameObject prop, string soulName)
+        private void ResetPhysicsIfNeeded(GameObject prop)
         {
             // Most props work fine with just SetActive(true)
             // Add special handling here if specific props need physics reset
@@ -638,6 +786,11 @@ namespace GooseGameAP
             if (rb != null)
             {
                 rb.WakeUp();
+                // Log.LogInfo($"[Prop DEBUG] Physics reset for: {prop.name}");
+            }
+            else
+            {
+                // Log.LogInfo($"[Prop DEBUG] No physics to reset for: {prop.name}");
             }
         }
         
