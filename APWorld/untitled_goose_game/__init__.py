@@ -165,12 +165,13 @@ class GooseGameWorld(World):
             itemNames.PROP_MALLET,
             itemNames.PROP_WOODEN_CRATE,
             
-            # High Street One-Off Props (20)
+            # High Street One-Off Props (21)
             itemNames.PROP_HORN_RIMMED_GLASSES,
             itemNames.PROP_RED_GLASSES,
             itemNames.PROP_SUNGLASSES,
             itemNames.PROP_LOO_PAPER,
             itemNames.PROP_TOY_CAR,
+            itemNames.PROP_FOOTBALL,
             itemNames.PROP_HAIRBRUSH,
             itemNames.PROP_TOOTHRBRUSH,
             itemNames.PROP_STEREOSCOPE,

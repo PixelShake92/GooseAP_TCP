@@ -258,6 +258,8 @@ class UntitledGooseRules:
                 locationNames.INTERACT_BIKE_BELL: self.interact_bike_bell,
                 locationNames.INTERACT_GARDEN_TAP: self.interact_garden_water,
                 locationNames.INTERACT_SPRINKLER: self.interact_garden_water,
+                locationNames.SHORT_OUT_RADIO: self.short_out_radio,
+                locationNames.LOCK_GROUNDSKEEPER_IN: self.lock_groundskeeper_out,
                 locationNames.OPEN_INTRO_GATE: self.interact_intro_gate,
                 # locationNames.DROP_ITEM_IN_WELL: self.interact_well,
                 locationNames.BREAK_THROUGH_BOARDS: self.interact_boards,
@@ -267,11 +269,15 @@ class UntitledGooseRules:
                 locationNames.INTERACT_UMBRELLA_RED: self.interact_umbrellas,
                 locationNames.INTERACT_BOYS_LACES_L: self.interact_boys_laces,
                 locationNames.INTERACT_BOYS_LACES_R: self.interact_boys_laces,
+                locationNames.INTERACT_FOOTBALL: self.interact_football,
                 locationNames.INTERACT_RING_BELL: self.interact_back_gardens_objects,
                 locationNames.INTERACT_WINDMILL: self.interact_back_gardens_objects,
                 locationNames.INTERACT_PURPLE_FLOWER: self.interact_back_gardens_objects,
                 locationNames.INTERACT_TRELLIS: self.interact_trellis,
                 locationNames.INTERACT_SUNFLOWER: self.interact_back_gardens_objects,
+                locationNames.INTERACT_TOPIARY: self.interact_back_gardens_objects,
+                locationNames.MAKE_WOMAN_FIX_TOPIARY: self.interact_make_woman_fix_topiary,
+                locationNames.POSE_AS_DUCK: self.pose_as_duck_statue,
                 locationNames.INTERACT_WIND_CHIME_C: self.interact_back_gardens_objects,
                 locationNames.INTERACT_WIND_CHIME_D: self.interact_back_gardens_objects,
                 locationNames.INTERACT_WIND_CHIME_E: self.interact_back_gardens_objects,
@@ -284,6 +290,7 @@ class UntitledGooseRules:
                 locationNames.INTERACT_BURLY_MANS_LACES_L: self.interact_burly_laces,
                 locationNames.INTERACT_BURLY_MANS_LACES_R: self.interact_burly_laces,
                 locationNames.INTERACT_PUB_TAP: self.interact_pub_tap,
+                locationNames.TRIP_BURLY_MAN: self.interact_burly_laces,
             }
 
         # Model Church Pecking Rules
@@ -495,10 +502,8 @@ class UntitledGooseRules:
     
     def make_groundskeeper_wear_sun_hat(self, state: CollectionState) -> bool:
         return (
-            self.has_garden(state)
-            and self.has_npc(state, itemNames.NPC_GROUNDSKEEPER)
+            self.pickup_grounsdkeepers_hat(state)
             and self.has_prop(state, itemNames.PROP_STRAW_HAT)
-            and self.has_prop(state, itemNames.PROP_TULIP)
         )
     
     def rake_in_lake(self, state: CollectionState) -> bool:
@@ -510,12 +515,14 @@ class UntitledGooseRules:
     def picnic(self, state: CollectionState) -> bool:
         return (
             self.has_garden(state)
-            and self.has_prop(state, itemNames.PROP_PICNIC_BASKET) 
-            and self.has_prop(state, itemNames.PROP_APPLES) 
             and self.has_prop(state, itemNames.PROP_SANDWICH)
+            and self.has_prop(state, itemNames.PROP_APPLES)
             and self.has_prop(state, itemNames.PROP_PUMPKINS)
+            and self.has_prop(state, itemNames.PROP_CARROTS)
             and self.has_prop(state, itemNames.PROP_JAM)
             and self.has_prop(state, itemNames.PROP_THERMOS)
+            and self.has_prop(state, itemNames.PROP_RADIO)
+            and self.has_prop(state, itemNames.PROP_PICNIC_BASKET)
         )
     
     def make_groundskeeper_hammer_thumb(self, state: CollectionState) -> bool:
@@ -595,6 +602,7 @@ class UntitledGooseRules:
             and self.has_prop(state, itemNames.PROP_TOOTHRBRUSH)
             and self.has_prop(state, itemNames.PROP_HAIRBRUSH)
             and self.has_prop(state, itemNames.PROP_LOO_PAPER)
+            and self.has_prop(state, itemNames.PROP_TINNED_FOOD)
             and (
                 self.has_prop(state, itemNames.PROP_DISH_SOAP_BOTTLE)
                 or self.has_prop(state, itemNames.PROP_SPRAY_BOTTLE)
@@ -779,6 +787,11 @@ class UntitledGooseRules:
             self.has_pub(state)
             and self.has_npc(state, itemNames.NPC_OLD_MAN)
             and self.has_prop(state, itemNames.PROP_PORTABLE_STOOL)
+            and (
+                self.has_prop(state, itemNames.PROP_DARTBOARD)
+                or self.has_prop(state, itemNames.PROP_GREEN_QUOITS)
+                or self.has_prop(state, itemNames.PROP_RED_QUOITS)
+            )
         )
     
     def be_awarded_flower(self, state: CollectionState) -> bool:
@@ -1115,6 +1128,7 @@ class UntitledGooseRules:
         return (
             self.has_high_street(state)
             and self.make_someone_prune_rose(state)
+            and self.has_prop(state, itemNames.PROP_FOOTBALL)
             and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_MESSY)
         )
     
@@ -1372,7 +1386,13 @@ class UntitledGooseRules:
         return (
             self.has_garden(state)
             and self.has_npc(state, itemNames.NPC_GROUNDSKEEPER)
-            and self.has_prop(state, itemNames.PROP_TULIP)
+            and
+            (
+                self.has_prop(state, itemNames.PROP_TULIP)
+                or self.rake_in_lake(state)
+                and self.picnic(state)
+                and self.has_prop(state, itemNames.PROP_MALLET)
+            )
         )
     
     def pickup_tulip(self, state: CollectionState) -> bool:
@@ -1413,8 +1433,7 @@ class UntitledGooseRules:
     
     def pickup_straw_hat(self, state: CollectionState) -> bool:
         return (
-            self.has_garden(state)
-            and self.has_npc(state, itemNames.NPC_GROUNDSKEEPER)
+            self.pickup_grounsdkeepers_hat(state)
             and self.has_prop(state, itemNames.PROP_STRAW_HAT)
         )
     
@@ -1769,10 +1788,7 @@ class UntitledGooseRules:
         )
     
     def pickup_woolen_hat(self, state: CollectionState) -> bool:
-        return (
-            self.has_pub(state)
-            and self.has_npc(state, itemNames.NPC_OLD_MAN)
-        )
+        return self.make_old_man_fall_on_bum(state)
     
     def pickup_pepper_grinder(self, state: CollectionState) -> bool:
         return (
@@ -2231,6 +2247,12 @@ class UntitledGooseRules:
     def interact_garden_water(self, state: CollectionState) -> bool:
         return self.has_garden(state)
     
+    def short_out_radio(self, state: CollectionState) -> bool:
+        return (
+            self.has_garden(state)
+            and self.has_prop(state, itemNames.PROP_RADIO)
+        )
+    
     def interact_intro_gate(self, state: CollectionState) -> bool:
         return True
     
@@ -2242,6 +2264,12 @@ class UntitledGooseRules:
     
     def interact_radio(self, state: CollectionState) -> bool:
         return self.has_high_street(state)
+    
+    def interact_football(self, state: CollectionState) -> bool:
+        return (
+            self.has_high_street(state)
+            and self.has_prop(state, itemNames.PROP_FOOTBALL)
+        )
     
     def interact_umbrellas(self, state: CollectionState) -> bool:
         return (
@@ -2264,6 +2292,22 @@ class UntitledGooseRules:
     
     def interact_trellis(self, state: CollectionState) -> bool:
         return self.has_back_gardens(state)
+
+    def interact_make_woman_fix_topiary(self, state: CollectionState) -> bool:
+        return (
+            self.has_back_gardens(state)
+            and self.has_npc(state, itemNames.NPC_MESSY_NEIGHBOUR)
+            and self.has_prop(state, itemNames.PROP_CLIPPERS)
+            and self.has_prop(state, itemNames.PROP_DRAWER)
+        )
+
+    def pose_as_duck_statue(self, state: CollectionState) -> bool:
+        return (
+            self.has_back_gardens(state)
+            and self.has_npc(state, itemNames.NPC_MESSY_NEIGHBOUR)
+            and self.has_prop(state, itemNames.PROP_DUCK_STATUE)
+            and self.has_prop(state, itemNames.PROP_DRAWER)
+        )
     
     def interact_van_doors(self, state: CollectionState) -> bool:
         return self.has_pub(state)

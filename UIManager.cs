@@ -962,7 +962,7 @@ namespace GooseGameAP
             new SoulInfo("Rake", m?.HasReceivedSoul("Rake") ?? false),
             new SoulInfo("Sandwich", m?.HasReceivedSoul("Sandwich") ?? false),
             new SoulInfo("Shovel", m?.HasReceivedSoul("Shovel") ?? false),
-            new SoulInfo("Straw Hat", m?.HasReceivedSoul("Straw Hat") ?? false),
+            new SoulInfo("Sun Hat", m?.HasReceivedSoul("Sun Hat") ?? false),
             new SoulInfo("Thermos", m?.HasReceivedSoul("Thermos") ?? false),
             new SoulInfo("Topsoil Bag", m?.HasReceivedSoul("Topsoil Bags") ?? false),
             new SoulInfo("Trowel", m?.HasReceivedSoul("Trowel") ?? false),

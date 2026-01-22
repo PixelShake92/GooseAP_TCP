@@ -97,6 +97,7 @@ item_table: Dict[str, GooseGameItemData] = {
     itemNames.PROP_SPRAY_BOTTLE: GooseGameItemData(BASE_ID + 530, ItemClassification.progression),
     itemNames.PROP_LILY_FLOWER: GooseGameItemData(BASE_ID + 532, ItemClassification.progression),
     itemNames.PROP_TOY_PLANE: GooseGameItemData(BASE_ID + 533, ItemClassification.progression),
+    itemNames.PROP_FOOTBALL: GooseGameItemData(BASE_ID + 534, ItemClassification.progression),
     itemNames.PROP_CHALK: GooseGameItemData(BASE_ID + 535, ItemClassification.progression),
     itemNames.PROP_DUSTBIN_LID: GooseGameItemData(BASE_ID + 536, ItemClassification.progression_deprioritized),
     itemNames.PROP_SHOPPING_BASKET: GooseGameItemData(BASE_ID + 537, ItemClassification.progression),

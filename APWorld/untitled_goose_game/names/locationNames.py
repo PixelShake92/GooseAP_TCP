@@ -322,11 +322,13 @@ INTERACT_UMBRELLA_BLACK = "Open Umbrella (Black)"
 INTERACT_UMBRELLA_RAINBOW = "Open Umbrella (Rainbow)"
 INTERACT_UMBRELLA_RED = "Open Umbrella (Red)"
 INTERACT_UNPLUG_RADIO = "Unplug the shop's radio"
+INTERACT_FOOTBALL = "Boop the football"
 
 # Back Gardens Interactions
 INTERACT_PURPLE_FLOWER = "Spin the purple flower"
 INTERACT_RING_BELL = "Ring the bell in the Back Gardens"
 INTERACT_SUNFLOWER = "Spin the sunflower"
+INTERACT_TOPIARY = "Peck at the topiary"
 INTERACT_TRELLIS = "Break through the trellis"
 INTERACT_WIND_CHIME_C = "Play Wind Chime (C)"
 INTERACT_WIND_CHIME_D = "Play Wind Chime (D)"
@@ -347,7 +349,12 @@ INTERACT_VAN_DOOR_R = "Close Van Door (Right)"
 # Events
 BREAK_THROUGH_BOARDS = "Break through the boards to the Back Gardens"
 DROP_ITEM_IN_WELL = "Drop something in the well"
+LOCK_GROUNDSKEEPER_IN = "Lock the groundskeeper IN the garden"
+MAKE_WOMAN_FIX_TOPIARY = "Make the woman fix the topiary"
 OPEN_INTRO_GATE = "Open the intro gate"
+POSE_AS_DUCK = "Pose as a duck statue"
+SHORT_OUT_RADIO = "Short out the garden radio"
+TRIP_BURLY_MAN = "Trip the burly man"
 
 # ----- Model Church Pecks -----
 

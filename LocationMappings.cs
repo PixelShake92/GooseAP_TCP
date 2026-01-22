@@ -108,7 +108,7 @@ namespace GooseGameAP
                 case 504: return "Jam";
                 case 505: return "Picnic Mug";
                 case 506: return "Thermos";
-                case 507: return "Straw Hat";
+                case 507: return "Sun Hat";
                 case 508: return "Drink Can";
                 case 509: return "Tennis Ball";
                 // case 510: return "";
@@ -136,7 +136,7 @@ namespace GooseGameAP
                 case 531: return "Weed Tools";
                 case 532: return "Lily Flower";
                 case 533: return "Toy Plane";
-                // case 534: return "";
+                case 534: return "Football";
                 case 535: return "Chalk";
                 case 536: return "Dustbin Lid";
                 case 537: return "Shopping Basket";
@@ -634,6 +634,8 @@ namespace GooseGameAP
                 case "BikeBell": return BASE_ID + 1301;      // Ring the bike bell
                 case "GardenTap": return BASE_ID + 1302;     // Turn on the tap in the Garden
                 case "Sprinkler": return BASE_ID + 1303;     // Turn on the sprinkler
+                case "ShortRadio": return BASE_ID + 1304;   // Short out the garden radio
+                case "LockedIn": return BASE_ID + 1305;   // Lock the groundskeeper in the garden
                 
                 // Hub interactions (1306, 1500)
                 case "IntroGate": return BASE_ID + 1306;     // Open the intro gate
@@ -647,6 +649,7 @@ namespace GooseGameAP
                 case "UmbrellaStand3": return BASE_ID + 1314; // Open Umbrella (Rainbow)
                 case "WimpLacesLeft": return BASE_ID + 1316;  // Untie Boy's Laces (Left)
                 case "WimpLacesRight": return BASE_ID + 1317; // Untie Boy's Laces (Right)
+                case "Football": return BASE_ID + 1318;         // Boop the football
                 
                 // Back Gardens interactions (1320-1325)
                 case "GardenBell": return BASE_ID + 1320;    // Ring the bell in the Back Gardens
@@ -656,6 +659,9 @@ namespace GooseGameAP
                 case "BreakTrellis": return BASE_ID + 1324;  // Break through the trellis
                 case "SpinSunflower": return BASE_ID + 1325; // Spin the sunflower
                 case "SpinFlower": return BASE_ID + 1323;    // Fallback (maps to purple)
+                case "Topiary": return BASE_ID + 1326;      // Mess with topiary
+                case "Topiary 2": return BASE_ID + 1327;    // Make the woman fix the topiary
+                case "Pose as Duck": return BASE_ID + 1328; // Pose as a duck statue
                 
                 // Wind Chimes individual notes (1340-1346) - left to right: G, F, E, D, C, B, A
                 case "WindChimeG": return BASE_ID + 1340;    // Leftmost chime
@@ -672,6 +678,7 @@ namespace GooseGameAP
                 case "BurlyLacesLeft": return BASE_ID + 1332; // Untie Burly Man's Laces (Left)
                 case "BurlyLacesRight": return BASE_ID + 1333; // Untie Burly Man's Laces (Right)
                 case "PubTap": return BASE_ID + 1334;        // Turn on the tap in the Pub
+                case "TripBurly": return BASE_ID + 1335;        // Trip the burly man
                 
                 default:
                     return null;
@@ -771,7 +778,7 @@ namespace GooseGameAP
                 case 1010: return "Pickup Thermos";
                 case 1011: return "Pickup Sandwich (Right)";
                 case 1012: return "Pickup Sandwich (Left)";
-                case 1014: return "Pickup Straw Hat";
+                case 1014: return "Pickup Sun Hat";
                 case 1015: return "Pickup Drink Can";
                 case 1016: return "Pickup Tennis Ball";
                 case 1017: return "Pickup Groundskeeper's Hat";

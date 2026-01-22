@@ -240,7 +240,29 @@ namespace GooseGameAP
             }
             if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
             {
-                WarpToArea("High Street", HasHighStreetAccess, GateManager.HighStreetPosition);
+                if (PropManager.HasReceivedSoul("Chalk") && !checkedLocations.Contains(119000016))
+                {
+                    int numTasks = 0;
+                    if (checkedLocations.Contains(119000010)) numTasks++;
+                    if (checkedLocations.Contains(119000011)) numTasks++;
+                    if (checkedLocations.Contains(119000012)) numTasks++;
+                    if (checkedLocations.Contains(119000013)) numTasks++;
+                    if (checkedLocations.Contains(119000014)) numTasks++;
+                    if (checkedLocations.Contains(119000015)) numTasks++;
+                    
+                    if (numTasks >= 5)
+                    {
+                        WarpToArea("High Street", HasHighStreetAccess, GateManager.HighStreetTemporaryPosition);
+                    }
+                    else
+                    {
+                        WarpToArea("High Street", HasHighStreetAccess, GateManager.HighStreetPosition);
+                    }
+                }
+                else
+                {
+                    WarpToArea("High Street", HasHighStreetAccess, GateManager.HighStreetPosition);
+                }
             }
             if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
             {

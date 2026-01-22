@@ -86,8 +86,8 @@ namespace GooseGameAP
             { "jam", "Jam" },
             { "picnicmug", "Picnic Mug" },
             { "thermos", "Thermos" },
-            { "strawhat", "Straw Hat" },
-            { "sunhat", "Straw Hat" },
+            { "strawhat", "Sun Hat" },
+            { "sunhat", "Sun Hat" },
             { "drinkcan", "Drink Can" },
             { "tennisball", "Tennis Ball" },
             { "rake", "Rake" },
@@ -126,6 +126,7 @@ namespace GooseGameAP
             { "babydoll", "Baby Doll" },
             { "pricinggun", "Pricing Gun" },
             { "addingmachine", "Adding Machine" },
+            { "football", "Football" },
             
             // Back Gardens one-offs
             { "dummy", "Dummy" },

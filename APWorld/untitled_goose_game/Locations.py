@@ -344,6 +344,8 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_BIKE_BELL: GooseGameLocationData(BASE_ID + 1301, regionNames.START_AREA),
     locationNames.INTERACT_GARDEN_TAP: GooseGameLocationData(BASE_ID + 1302, regionNames.GARDEN),
     locationNames.INTERACT_SPRINKLER: GooseGameLocationData(BASE_ID + 1303, regionNames.GARDEN),
+    locationNames.SHORT_OUT_RADIO: GooseGameLocationData(BASE_ID + 1304, regionNames.GARDEN),
+    locationNames.LOCK_GROUNDSKEEPER_IN: GooseGameLocationData(BASE_ID + 1305, regionNames.GARDEN),
     
     # Hub interactions (1306, 1500)
     locationNames.OPEN_INTRO_GATE: GooseGameLocationData(BASE_ID + 1306, regionNames.START_AREA),
@@ -358,6 +360,7 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_UMBRELLA_RED: GooseGameLocationData(BASE_ID + 1315, regionNames.HIGH_STREET),
     locationNames.INTERACT_BOYS_LACES_L: GooseGameLocationData(BASE_ID + 1316, regionNames.HIGH_STREET),
     locationNames.INTERACT_BOYS_LACES_R: GooseGameLocationData(BASE_ID + 1317, regionNames.HIGH_STREET),
+    locationNames.INTERACT_FOOTBALL: GooseGameLocationData(BASE_ID + 1318, regionNames.HIGH_STREET),
     
     # Back Gardens interactions (1320-1346)
     locationNames.INTERACT_RING_BELL: GooseGameLocationData(BASE_ID + 1320, regionNames.BACK_GARDENS),
@@ -365,6 +368,9 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_PURPLE_FLOWER: GooseGameLocationData(BASE_ID + 1323, regionNames.BACK_GARDENS),
     locationNames.INTERACT_TRELLIS: GooseGameLocationData(BASE_ID + 1324, regionNames.BACK_GARDENS),
     locationNames.INTERACT_SUNFLOWER: GooseGameLocationData(BASE_ID + 1325, regionNames.BACK_GARDENS),
+    locationNames.INTERACT_TOPIARY: GooseGameLocationData(BASE_ID + 1326, regionNames.BACK_GARDENS),
+    locationNames.MAKE_WOMAN_FIX_TOPIARY: GooseGameLocationData(BASE_ID + 1327, regionNames.BACK_GARDENS),
+    locationNames.POSE_AS_DUCK: GooseGameLocationData(BASE_ID + 1328, regionNames.BACK_GARDENS),
     
     # Wind Chimes - individual notes (1340-1346) - left to right: G, F, E, D, C, B, A
     locationNames.INTERACT_WIND_CHIME_G: GooseGameLocationData(BASE_ID + 1340, regionNames.BACK_GARDENS),
@@ -381,6 +387,7 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_BURLY_MANS_LACES_L: GooseGameLocationData(BASE_ID + 1332, regionNames.PUB),
     locationNames.INTERACT_BURLY_MANS_LACES_R: GooseGameLocationData(BASE_ID + 1333, regionNames.PUB),
     locationNames.INTERACT_PUB_TAP: GooseGameLocationData(BASE_ID + 1334, regionNames.PUB),
+    locationNames.TRIP_BURLY_MAN: GooseGameLocationData(BASE_ID + 1335, regionNames.PUB),
 }
 
 # UNIQUE TRACKED ITEMS - Runtime-renamed items (IDs 1401-1450)

@@ -377,6 +377,19 @@ namespace GooseGameAP
             string objLower = objName.ToLower();
             string parentLower = parentName.ToLower();
             
+            /*if (parentLower != "goldenbell" && parentLower != "irongate" && objLower != "pubgatesystem" && objLower != "pubtohubgatesystem" && objLower != "sluicegatesystem" &&
+                parentLower != "chimeswitches" && objLower != "gardenareatrigger" && parentLower != "teachingzoom" && objLower != "getinthegardendetector" && parentLower != "dartthrowjob" &&
+                parentLower != "quoitjobs" && parentLower != "footrcomponents" && parentLower != "footlcomponents" && objLower != "pubtofinalegatesystem" && !objLower.Contains("towerpeck") &&
+                !objLower.Contains("doorwaypeck") && parentLower != "van" && parentLower != "getinpubzone" && parentLower != "finalecameradata" && parentLower != "binskip_openable" &&
+                objLower != "pubareatrigger" && objLower != "messybackyarddetector" && parentLower != "teachingmove" && parentLower != "teachingbend" && parentLower != "spawnbush" &&
+                parentLower != "teachingbeak" && parentLower != "teachingpickupground" && parentLower != "introgate" && objLower != "backyardareatrigger" &&
+                parentLower != "trellisblockersystem" && parentLower != "toe_lcomponents" && parentLower != "cleanslipperl" && parentLower != "toe_rcomponents" &&
+                parentLower != "cleanslipperr" && parentLower != "gatetall" && parentLower != "halltohubgatesystem" && objLower != "highstreetareatrigger" && parentLower != "tvshopswitches" &&
+                objLower != "finaleareatrigger" && parentLower != "soap" && objLower != "goalmodelvillagesystem" && parentLower != "pricinggun")
+            {
+                Plugin.Log.LogInfo($"[INTERACT] Detected interaction: '{objLower}' (parent: '{parentLower}')");
+            }*/
+            
             // === GARDEN ===
             
             // Bike bell - bikeBellSwitchSystem with parent "bike"
@@ -397,6 +410,18 @@ namespace GooseGameAP
                 Plugin.Instance?.InteractionTracker?.OnInteraction("Sprinkler");
             }
             
+            // Short out the radio
+            if (objLower.Contains("shortoutswitchsystem") && parentLower == "radiosmall")
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("ShortRadio");
+            }
+            
+            // Lock the groundskeeper in the garden
+            if (objLower.Contains("lockedinsystem") && parentLower == "extragardengoals")
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("LockedIn");
+            }
+            
             // === HUB ===
             
             // Intro gate (first gate at game start)
@@ -406,6 +431,12 @@ namespace GooseGameAP
             }
             
             // === HIGH STREET ===
+            
+            // Boop the football
+            if (objLower == "goosepecktorollswitch" && parentLower == "football")
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("Football");
+            }
             
             // Radio - bigRadioWithCable
             if (objLower.Contains("bigradio"))
@@ -437,6 +468,23 @@ namespace GooseGameAP
             }
             
             // === BACK GARDENS ===
+            
+            // Topiary - pecking
+            if (parentLower == "topiary" && (objLower == "peckeffects" || objLower == "peckyswitch"))
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("Topiary");
+            }
+            // Topiary - fixing
+            if (parentLower == "topiary" && (/*objLower == "normalsnipswitch" || objLower == "cosmeticsnipswitch" ||*/ objLower == "finalsnipswitch"))
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("Topiary 2");
+            }
+            
+            // Pose as a duck
+            if (parentLower == "duckandribbonstuff" && objLower == "gooseisinposeswitchsystem")// objLower == "enablegooseposeswitchsystem")
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("Pose as Duck");
+            }
             
             // Big Garden Bell - StrikerSwitchSystem/BellSwitchSystem with parent "bell"
             if (parentLower == "bell" && (objLower.Contains("striker") || objLower.Contains("bellswitch")))
@@ -527,6 +575,12 @@ namespace GooseGameAP
             if (objLower == "goosesswitch" && parentLower == "taphandlepositioner")
             {
                 Plugin.Instance?.InteractionTracker?.OnInteraction("PubTap");
+            }
+            
+            // Trip the burly man
+            if (objLower == "tripsystem" && parentLower == "pub man")
+            {
+                Plugin.Instance?.InteractionTracker?.OnInteraction("TripBurly");
             }
         }
         
