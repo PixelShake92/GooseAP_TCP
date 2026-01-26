@@ -90,24 +90,24 @@ Every task on your to-do list is a location check:
 
 #### Extra Controls
 
-`| Key    | Action                                                |`
-`|--------|-------------------------------------------------------|`
-`| F1     | Toggle AP UI visibility                               |`
-`| F2     | Toggle Soul UI Visibility                             |`
-`| F3     | Toggle Server UI Visibility                           |`
-`| F4     | Toggle Extra Tasks UI Visibility                      |`
-`| G      | Use a stored Goose Day                                |`
-`| C      | Cycle goose colour                                    |`
-`| Ctrl+C | Reset goose colour                                    |`
-`| F9     | Resync gates (use if gates get stuck after reconnect) |`
-`| 0      | Warp to starting area (if not holding anything)       |`
-`| 1      | Warp to garden (if not holding anything)              |`
-`| 2      | Warp to high street (if not holding anything)         |`
-`| 3      | Warp to back gardens (if not holding anything)        |`
-`| 4      | Warp to pub (if not holding anything)                 |`
-`| 5      | Warp to mode village (if not holding anything)        |`
-`| H      | Warp to the well in the hub (if not holding anything) |`
-`|--------|-------------------------------------------------------|`
+- `| Key    | Action                                                |`
+- `|--------|-------------------------------------------------------|`
+- `| F1     | Toggle AP UI visibility                               |`
+- `| F2     | Toggle Soul UI Visibility                             |`
+- `| F3     | Toggle Server UI Visibility                           |`
+- `| F4     | Toggle Extra Tasks UI Visibility                      |`
+- `| G      | Use a stored Goose Day                                |`
+- `| C      | Cycle goose colour                                    |`
+- `| Ctrl+C | Reset goose colour                                    |`
+- `| F9     | Resync gates (use if gates get stuck after reconnect) |`
+- `| 0      | Warp to starting area (if not holding anything)       |`
+- `| 1      | Warp to garden (if not holding anything)              |`
+- `| 2      | Warp to high street (if not holding anything)         |`
+- `| 3      | Warp to back gardens (if not holding anything)        |`
+- `| 4      | Warp to pub (if not holding anything)                 |`
+- `| 5      | Warp to mode village (if not holding anything)        |`
+- `| H      | Warp to the well in the hub (if not holding anything) |`
+- `|--------|-------------------------------------------------------|`
 
 ## YAML
 - Copy the YAML below into a text document like Notepad - or - after installing the AP world, run the Archipelago Launcher and then press Generate Template Options
