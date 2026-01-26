@@ -86,6 +86,7 @@ Every task on your to-do list is a location check:
 - Butterbeak (drop items and be unable to grab anything for 10s)
 
 ## YAML
+- Copy the YAML below into a text document like Notepad - or - after installing the AP world, run the Archipelago Launcher and then press Generate Template Options
 
 ```yaml
 name: Goose
