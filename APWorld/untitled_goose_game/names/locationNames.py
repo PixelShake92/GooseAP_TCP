@@ -306,10 +306,11 @@ DRAG_MINI_PUMP = "Drag Mini Pump"
 DRAG_MINI_STREET_BENCH = "Drag Mini Street Bench"
 DRAG_MINI_SUN_LOUNGE = "Drag Mini Sun Lounge"
 
-# ----- Interactions & Events -----
+# ----- Interactions -----
 
 # Starting Area/Hub Interactions
 INTERACT_BIKE_BELL = "Ring the bike bell"
+INTERACT_WELL = "Drop something in the well"
 
 # Garden Interactions
 INTERACT_GARDEN_TAP = "Turn on the tap in the Garden"
@@ -339,22 +340,12 @@ INTERACT_WIND_CHIME_A = "Play Wind Chime (A)"
 INTERACT_WIND_CHIME_B = "Play Wind Chime (B)"
 INTERACT_WINDMILL = "Spin the windmill"
 
-# Pub interactions Interactions
+# Pub Interactions
 INTERACT_BURLY_MANS_LACES_L = "Untie Burly Man's Laces (Left)"
 INTERACT_BURLY_MANS_LACES_R = "Untie Burly Man's Laces (Right)"
 INTERACT_PUB_TAP = "Turn on the tap in the Pub"
 INTERACT_VAN_DOOR_L = "Close Van Door (Left)"
 INTERACT_VAN_DOOR_R = "Close Van Door (Right)"
-
-# Events
-BREAK_THROUGH_BOARDS = "Break through the boards to the Back Gardens"
-DROP_ITEM_IN_WELL = "Drop something in the well"
-LOCK_GROUNDSKEEPER_IN = "Lock the groundskeeper IN the garden"
-MAKE_WOMAN_FIX_TOPIARY = "Make the woman fix the topiary"
-OPEN_INTRO_GATE = "Open the intro gate"
-POSE_AS_DUCK = "Pose as a duck statue"
-SHORT_OUT_RADIO = "Short out the garden radio"
-TRIP_BURLY_MAN = "Trip the burly man"
 
 # ----- Model Church Pecks -----
 
@@ -397,3 +388,19 @@ PECK_TOWER_13 = "Peck Model Church Tower 13"
 PECK_TOWER_14 = "Peck Model Church Tower 14"
 PECK_TOWER_15 = "Peck Model Church Tower 15"
 PECK_TOWER_16 = "Peck Model Church Tower 16"
+
+# ----- New Archipelago Tasks -----
+
+BREAK_PINT_GLASS = "Break a pint glass"
+BREAK_THROUGH_BOARDS = "Break through the boards to the back gardens"
+DRESS_UP_BUSH = "Dress up the bush with both ribbons"
+DROP_MAIL_IN_WELL = "Drop some mail in the well"
+INTERIOR_REDECORATING = "Do some interior redecorating"
+LOCK_GROUNDSKEEPER_IN = "Lock the groundskeeper IN the garden"
+MAKE_WOMAN_FIX_TOPIARY = "Make the woman fix the topiary"
+OPEN_INTRO_GATE = "Break the intro gate"
+PERFORM_WITH_HARMONICA = "Perform at the pub with a harmonica"
+POSE_AS_DUCK = "Pose as a duck statue"
+SHORT_OUT_RADIO = "Short out the garden radio"
+TRAP_TV_SHOP_OWNER_GARAGE = "Trap the TV shop owner in the garage"
+TRIP_BURLY_MAN = "Trip the burly man"

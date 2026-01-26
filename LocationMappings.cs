@@ -103,7 +103,7 @@ namespace GooseGameAP
                 // Garden One-Off Prop Souls (500-519)
                 case 500: return "Radio";
                 case 501: return "Trowel";
-                // case 502: return "";
+                case 502: return "Cabbages";
                 case 503: return "Tulip";
                 case 504: return "Jam";
                 case 505: return "Picnic Mug";
@@ -141,6 +141,7 @@ namespace GooseGameAP
                 case 536: return "Dustbin Lid";
                 case 537: return "Shopping Basket";
                 case 538: return "Push Broom";
+                case 539: return "Garage Rope";
                 case 540: return "Dustbin";
                 case 541: return "Baby Doll";
                 case 542: return "Pricing Gun";
@@ -163,7 +164,7 @@ namespace GooseGameAP
                 case 562: return "Bra";
                 case 563: return "Rose";
                 // Removing Rose Box Soul until I can solve the physics issues with it
-                // case 564: return "Rose Box";
+                case 564: return "Rose Box";
                 case 565: return "Cricket Bat";
                 case 566: return "Tea Pot";
                 case 567: return "Clippers";
@@ -363,14 +364,6 @@ namespace GooseGameAP
                 case "pintbottle_1": return BASE_ID + 1042;  // 
                 case "pintbottle_2": return BASE_ID + 1048;  // 
                 case "pintbottle_3": return BASE_ID + 1049;  // 
-            }
-            
-            // Check for renamed topsoil bags (top_1, top_2, top_3)
-            switch (lowerName)
-            {
-                case "top_1": return BASE_ID + 1450;
-                case "top_2": return BASE_ID + 1451;
-                case "top_3": return BASE_ID + 1452;
             }
             
             switch (lowerName)
@@ -630,19 +623,15 @@ namespace GooseGameAP
         {
             switch (interactionName)
             {
+                // Hub interactions (1300)
+                case "WellDrop": return BASE_ID + 1300;      // Drop something in the well
+
                 // Garden interactions (1301-1303)
                 case "BikeBell": return BASE_ID + 1301;      // Ring the bike bell
                 case "GardenTap": return BASE_ID + 1302;     // Turn on the tap in the Garden
                 case "Sprinkler": return BASE_ID + 1303;     // Turn on the sprinkler
-                case "ShortRadio": return BASE_ID + 1304;   // Short out the garden radio
-                case "LockedIn": return BASE_ID + 1305;   // Lock the groundskeeper in the garden
-                
-                // Hub interactions (1306, 1500)
-                case "IntroGate": return BASE_ID + 1306;     // Open the intro gate
-                case "WellDrop": return BASE_ID + 1500;      // Drop something in the well
                 
                 // High Street interactions (1310-1317)
-                case "BreakBoards": return BASE_ID + 1310;   // Break through the boards to the Back Gardens
                 case "UnplugRadio": return BASE_ID + 1311;   // Unplug the shop's radio
                 case "UmbrellaStand1": return BASE_ID + 1313; // Open Umbrella (Black)
                 case "UmbrellaStand2": return BASE_ID + 1315; // Open Umbrella (Red)
@@ -660,8 +649,6 @@ namespace GooseGameAP
                 case "SpinSunflower": return BASE_ID + 1325; // Spin the sunflower
                 case "SpinFlower": return BASE_ID + 1323;    // Fallback (maps to purple)
                 case "Topiary": return BASE_ID + 1326;      // Mess with topiary
-                case "Topiary 2": return BASE_ID + 1327;    // Make the woman fix the topiary
-                case "Pose as Duck": return BASE_ID + 1328; // Pose as a duck statue
                 
                 // Wind Chimes individual notes (1340-1346) - left to right: G, F, E, D, C, B, A
                 case "WindChimeG": return BASE_ID + 1340;    // Leftmost chime
@@ -678,7 +665,23 @@ namespace GooseGameAP
                 case "BurlyLacesLeft": return BASE_ID + 1332; // Untie Burly Man's Laces (Left)
                 case "BurlyLacesRight": return BASE_ID + 1333; // Untie Burly Man's Laces (Right)
                 case "PubTap": return BASE_ID + 1334;        // Turn on the tap in the Pub
-                case "TripBurly": return BASE_ID + 1335;        // Trip the burly man
+                
+                // New Tasks list (1500-1520)
+                case "WellDrop2": return BASE_ID + 1500;            // Drop some mail in the well
+                case "IntroGate": return BASE_ID + 1501;            // Open the intro gate
+                case "BreakBoards": return BASE_ID + 1502;          // Break through the boards to the Back Gardens
+                case "ShortRadio": return BASE_ID + 1503;           // Short out the garden radio
+                case "LockedIn": return BASE_ID + 1504;             // Lock the groundskeeper in the garden
+                case "Topiary 2": return BASE_ID + 1505;            // Make the woman fix the topiary
+                case "Pose as Duck": return BASE_ID + 1506;         // Pose as a duck statue
+                case "RibbonStuckA": return BASE_ID + 9998; // NOT A CHECK - used for combining both into one check (BASE_ID + 1507)
+                case "RibbonStuckB": return BASE_ID + 9999; // NOT A CHECK - used for combining both into one check (BASE_ID + 1507)
+                case "TripBurly": return BASE_ID + 1508;            // Trip the burly man
+                case "BreakPintGlass": return BASE_ID + 1509;       // Break a pint glass
+                case "InteriorRedecorating": return BASE_ID + 1510; // Do some interior redecorating
+                case "TrappedTVShopOwner": return BASE_ID + 1511;   // Trap the TV shop owner in the garage
+                case "PerformHarmonica": return BASE_ID + 1512;     // Perform at the pub with a harmonica
+                
                 
                 default:
                     return null;
@@ -960,7 +963,6 @@ namespace GooseGameAP
                 case 1305: return "Greenhouse Window";
                 case 1306: return "Intro Gate";
                 case 1307: return "TV Remote";
-                case 1500: return "Well Drop";
                 case 1308: return "Open Umbrella (Black)";
                 case 1309: return "Turn on Tap";
                 case 1310: return "Open Phone Booth";
@@ -981,8 +983,8 @@ namespace GooseGameAP
                 case 1325: return "Wheel Barrow Handle";
                 case 1326: return "Spin Purple Flower";
                 case 1327: return "Spin Sunflower";
-                case 1328: return "Spin TV Dial";
-                case 1329: return "Ring Service Bell";
+                case 1328: return "Pose as Duck";
+                case 1329: return "Dress up the bush with both ribbons";
                 case 1330: return "Close Van Door (Left)";
                 case 1331: return "Close Van Door (Right)";
                 case 1332: return "Untie Burly Man's Left Laces";
@@ -1066,6 +1068,21 @@ namespace GooseGameAP
                 case 1450: return "Pickup Topsoil Bag 1";
                 case 1451: return "Pickup Topsoil Bag 2";
                 case 1452: return "Pickup Topsoil Bag 3";
+                
+                // New Tasks (1500-1520)
+                case 1500: return "Drop some mail in the well";
+                case 1501: return "Break the intro gate";
+                case 1502: return "Break through the boards to the back gardens";
+                case 1503: return "Short out the garden radio";
+                case 1504: return "Lock the groundskeeper IN the garden";
+                case 1505: return "Make the woman fix the topiary";
+                case 1506: return "Pose as a duck statue";
+                case 1507: return "Dress up the bush with both ribbons";
+                case 1508: return "Trip the burly man";
+                case 1509: return "Break a pint glass";
+                case 1510: return "Do some interior redecorating";
+                case 1511: return "Trap the TV shop owner in the garage";
+                case 1512: return "Perform at the pub with a harmonica";
             }
             
             // Generic fallbacks for ID ranges

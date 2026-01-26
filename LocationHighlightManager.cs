@@ -326,10 +326,22 @@ namespace GooseGameAP
                 {
                     HighlightSpecificGameObject(gameObj, "rightstrap");
                 }
-                /*else if (gameObj.name == "fertiliser" || gameObj.name == "fertliser" || gameObj.name == "fertilizer" || gameObj.name == "topsoilbag" || gameObj.name == "topsoil")
+                else if (gameObj.name == "fertilizer")
                 {
-                    HighlightSpecificGameObject(gameObj, "top");
-                }*/
+                    if (gameObj.transform.parent.name == "FertilizerPile")
+                    {
+                        HighlightSpecificGameObject(gameObj, "top_1");
+                    }
+                    else if (gameObj.transform.parent.name == "HoleBlockerHomes")
+                    {
+                        HighlightSpecificGameObject(gameObj, "top_3");
+                    }
+                }
+                else if (gameObj.name == "fertilizer (1)" && gameObj.transform.parent.name == "FertilizerPile")
+                {
+                    HighlightSpecificGameObject(gameObj, "top_2");
+                }
+                // TO DO: check if darts highlighting can be separate from each other & dartboard
             }
         }
 
@@ -428,7 +440,7 @@ namespace GooseGameAP
                         highlighted.needsRefresh = true;
                         continue;
                     }
-                    
+
                     // Get mesh from MeshFilter or SkinnedMeshRenderer
                     Mesh mesh = null;
                     MeshFilter meshFilter = renderer.GetComponent<MeshFilter>();

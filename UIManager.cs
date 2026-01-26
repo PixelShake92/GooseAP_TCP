@@ -53,6 +53,18 @@ namespace GooseGameAP
         private const string SOUL_SCALE_KEY = "AP_SoulTrackerScale";
         private const string SOUL_X_KEY = "AP_SoulTrackerX";
         private const string SOUL_Y_KEY = "AP_SoulTrackerY";
+
+        // New Tasks List Window
+        private bool showNewTasksTracker = false;
+        private Rect newTasksTrackerWindowRect;
+        private bool isDraggingNewTasksTracker = false;
+        private Vector2 newTasksDragOffset = Vector2.zero;
+        private bool newTasksTrackerPositionInitialized = false;
+        private float newTasksTrackerScale = 1.0f;
+        private Vector2 newTasksScrollPosition = Vector2.zero;
+        private const string NEW_TASKS_SCALE_KEY = "AP_NewTasksTrackerScale";
+        private const string NEW_TASKS_X_KEY = "AP_NewTasksTrackerX";
+        private const string NEW_TASKS_Y_KEY = "AP_NewTasksTrackerY";
         
         private const float MIN_SCALE = 0.5f;
         private const float MAX_SCALE = 2.0f;
@@ -79,6 +91,9 @@ namespace GooseGameAP
             
             soulTrackerScale = PlayerPrefs.GetFloat(SOUL_SCALE_KEY, 1.0f);
             soulTrackerScale = Mathf.Clamp(soulTrackerScale, MIN_SCALE, MAX_SCALE);
+            
+            newTasksTrackerScale = PlayerPrefs.GetFloat(NEW_TASKS_SCALE_KEY, 1.0f);
+            newTasksTrackerScale = Mathf.Clamp(newTasksTrackerScale, MIN_SCALE, MAX_SCALE);
         }
         
         public void ShowNotification(string message)
@@ -93,8 +108,10 @@ namespace GooseGameAP
         public void ClearReceivedItems() { receivedItemNames.Clear(); }
         public int ReceivedItemCount => receivedItemNames.Count;
         public void ToggleSoulTracker() { showSoulTracker = !showSoulTracker; }
+        public void ToggleNewTasksTracker() { showNewTasksTracker = !showNewTasksTracker; }
         public void ToggleServerLog() { showServerLog = !showServerLog; }
         public bool IsSoulTrackerVisible => showSoulTracker;
+        public bool IsNewTasksTrackerVisible => showNewTasksTracker;
         public bool IsServerLogVisible => showServerLog;
         
         private void InitializeTextures()
@@ -370,7 +387,7 @@ namespace GooseGameAP
             // Footers
             GUI.color = new Color(0.4f, 0.4f, 0.45f);
             GUI.Label(new Rect(x, winY + winH - 66 * s, w, 20 * s), 
-                $"<size={Mathf.RoundToInt(9 * s)}>F1=Toggle | F2=Souls | F3=Log</size>");
+                $"<size={Mathf.RoundToInt(9 * s)}>F1=Toggle | F2=Souls | F3=Log | F4=New Tasks</size>");
             GUI.color = Color.white;
             
             // Footer 2
@@ -882,12 +899,13 @@ namespace GooseGameAP
             float h = headerH + 11 * lineH + 6 * s;
             if (plugin.PropSoulsEnabled)
             {
+                h += headerH + 3 * lineH + 6 * s;
+                h += headerH + 6 * lineH + 6 * s;
                 h += headerH + 20 * lineH + 6 * s;
-                h += headerH + 24 * lineH + 6 * s;
-                h += headerH + 25 * lineH + 6 * s;
+                h += headerH + 31 * lineH + 6 * s;
+                h += headerH + 26 * lineH + 6 * s;
                 h += headerH + 22 * lineH + 6 * s;
                 h += headerH + 12 * lineH + 6 * s;
-                h += headerH + 26 * lineH + 6 * s;
             }
             return h + 20 * s;
         }
@@ -1026,7 +1044,7 @@ namespace GooseGameAP
             new SoulInfo("Pot Stack", m?.HasReceivedSoul("Pot Stack") ?? false),
             new SoulInfo("Ribbons", m?.HasReceivedSoul("Ribbons") ?? false),
             new SoulInfo("Rose", m?.HasReceivedSoul("Rose") ?? false),
-            // new SoulInfo("Rose Box", m?.HasReceivedSoul("Rose Box") ?? false),
+            new SoulInfo("Rose Box", m?.HasReceivedSoul("Rose Box") ?? false),
             new SoulInfo("Soap", m?.HasReceivedSoul("Soap") ?? false),
             new SoulInfo("Socks", m?.HasReceivedSoul("Socks") ?? false),
             new SoulInfo("Tea Cup", m?.HasReceivedSoul("Tea Cup") ?? false),
@@ -1061,15 +1079,15 @@ namespace GooseGameAP
         
         private List<SoulInfo> GetModelVillagePropSouls(Plugin p) { var m = p.PropManager; return new List<SoulInfo> {
             new SoulInfo("Golden Bell", m?.HasReceivedSoul("Golden Bell") ?? false),
-            new SoulInfo("Mini Bench", m?.HasReceivedSoul("Miniature Benches") ?? false),
-            new SoulInfo("Mini Birdbath", m?.HasReceivedSoul("Miniature Birdbath") ?? false),
-            new SoulInfo("Mini Easel", m?.HasReceivedSoul("Miniature Easel") ?? false),
-            new SoulInfo("Mini Mail Pillar", m?.HasReceivedSoul("Miniature Mail Pillar") ?? false),
-            new SoulInfo("Mini People", m?.HasReceivedSoul("Miniature People") ?? false),
-            new SoulInfo("Mini Phone Door", m?.HasReceivedSoul("Miniature Phone Door") ?? false),
-            new SoulInfo("Mini Pump", m?.HasReceivedSoul("Miniature Pump") ?? false),
-            new SoulInfo("Mini Shovel", m?.HasReceivedSoul("Miniature Shovel") ?? false),
-            new SoulInfo("Mini Sun Lounge", m?.HasReceivedSoul("Miniature Sun Lounge") ?? false),
+            new SoulInfo("Miniature Benches", m?.HasReceivedSoul("Miniature Benches") ?? false),
+            new SoulInfo("Miniature Birdbath", m?.HasReceivedSoul("Miniature Birdbath") ?? false),
+            new SoulInfo("Miniature Easel", m?.HasReceivedSoul("Miniature Easel") ?? false),
+            new SoulInfo("Miniature Mail Pillar", m?.HasReceivedSoul("Miniature Mail Pillar") ?? false),
+            new SoulInfo("Miniature People", m?.HasReceivedSoul("Miniature People") ?? false),
+            new SoulInfo("Miniature Phone Door", m?.HasReceivedSoul("Miniature Phone Door") ?? false),
+            new SoulInfo("Miniature Pump", m?.HasReceivedSoul("Miniature Pump") ?? false),
+            new SoulInfo("Miniature Shovel", m?.HasReceivedSoul("Miniature Shovel") ?? false),
+            new SoulInfo("Miniature Sun Lounge", m?.HasReceivedSoul("Miniature Sun Lounge") ?? false),
             new SoulInfo("Poppy Flower", m?.HasReceivedSoul("Poppy Flower") ?? false),
             new SoulInfo("Timber Handle", m?.HasReceivedSoul("Timber Handle") ?? false),
         }; }
@@ -1098,6 +1116,217 @@ namespace GooseGameAP
             // new SoulInfo("Walkie Talkie", m?.HasReceivedSoul("Walkie Talkie Soul") ?? false),
             // new SoulInfo("Boot", m?.HasReceivedSoul("Boot Soul") ?? false),
             // new SoulInfo("Mini Person", m?.HasReceivedSoul("Mini Person Soul") ?? false)
+        }; }
+        
+        // ============== NEW TASKS TRACKER WINDOW (Notebook Style) ==============
+        
+        public void DrawNewTasksTracker(Plugin plugin)
+        {
+            if (!showNewTasksTracker) return;
+            
+            InitializeScrollbarStyles();
+            
+            float baseW = 320, baseH = 450;
+            float winW = baseW * newTasksTrackerScale;
+            float winH = baseH * newTasksTrackerScale;
+            float s = newTasksTrackerScale;
+            
+            if (!newTasksTrackerPositionInitialized)
+            {
+                float savedX = PlayerPrefs.GetFloat(NEW_TASKS_X_KEY, Screen.width - winW - 15);
+                float savedY = PlayerPrefs.GetFloat(NEW_TASKS_Y_KEY, 15);
+                newTasksTrackerWindowRect = new Rect(savedX, savedY, winW, winH);
+                newTasksTrackerPositionInitialized = true;
+            }
+            
+            newTasksTrackerWindowRect.width = winW;
+            newTasksTrackerWindowRect.height = winH;
+            newTasksTrackerWindowRect.x = Mathf.Clamp(newTasksTrackerWindowRect.x, 0, Screen.width - winW);
+            newTasksTrackerWindowRect.y = Mathf.Clamp(newTasksTrackerWindowRect.y, 0, Screen.height - winH);
+            
+            int titleSize = Mathf.RoundToInt(15 * s);
+            int headerSize = Mathf.RoundToInt(12 * s);
+            int itemSize = Mathf.RoundToInt(11 * s);
+            float lineH = 18 * s;
+            float headerH = 22 * s;
+            
+            float winX = newTasksTrackerWindowRect.x;
+            float winY = newTasksTrackerWindowRect.y;
+            
+            // Paper background (white/very light)
+            GUI.color = new Color(0.99f, 0.99f, 0.97f, 1f);
+            GUI.DrawTexture(new Rect(winX, winY, winW, winH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            
+            // Red margin line on the left
+            float marginX = winX + 28 * s;
+            GUI.color = new Color(0.9f, 0.6f, 0.6f, 1f);
+            GUI.DrawTexture(new Rect(marginX, winY, 2 * s, winH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            
+            // Blue horizontal ruled lines
+            float ruleSpacing = 20 * s;
+            GUI.color = new Color(0.6f, 0.75f, 0.9f, 0.8f);
+            for (float ly = winY + ruleSpacing; ly < winY + winH - 5 * s; ly += ruleSpacing)
+            {
+                GUI.DrawTexture(new Rect(winX + 5 * s, ly, winW - 10 * s, 1), Texture2D.whiteTexture);
+            }
+            GUI.color = Color.white;
+            
+            // Content area
+            float x = marginX + 8 * s;
+            float y = winY + 8 * s;
+            float w = winW - (marginX - winX) - 16 * s;
+            
+            // Title
+            GUI.color = new Color(0.2f, 0.2f, 0.25f);
+            GUI.Label(new Rect(x, y, w * 0.6f, 24 * s), $"<size={titleSize}><i>New Tasks</i></size>");
+            GUI.color = Color.white;
+            
+            y += 26 * s;
+            
+            // Scale slider
+            GUI.color = new Color(0.3f, 0.3f, 0.35f);
+            GUI.Label(new Rect(x, y + 3 * s, 32 * s, 18 * s), $"<size={Mathf.RoundToInt(10 * s)}>Size:</size>");
+            GUI.color = Color.white;
+            
+            float sliderX = x + 34 * s;
+            float sliderW = w - 85 * s;
+            
+            GUI.color = new Color(0.8f, 0.8f, 0.82f, 1f);
+            GUI.DrawTexture(new Rect(sliderX, y + 8 * s, sliderW, 8 * s), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            
+            float newScale = GUI.HorizontalSlider(new Rect(sliderX, y, sliderW, 22 * s), newTasksTrackerScale, MIN_SCALE, MAX_SCALE);
+            
+            GUI.color = new Color(0.3f, 0.3f, 0.35f);
+            GUI.Label(new Rect(sliderX + sliderW + 6 * s, y + 3 * s, 42 * s, 18 * s), $"<size={Mathf.RoundToInt(10 * s)}>{Mathf.RoundToInt(newTasksTrackerScale * 100)}%</size>");
+            GUI.color = Color.white;
+            
+            if (Mathf.Abs(newScale - newTasksTrackerScale) > 0.01f)
+            {
+                newTasksTrackerScale = newScale;
+                PlayerPrefs.SetFloat(NEW_TASKS_SCALE_KEY, newTasksTrackerScale);
+                PlayerPrefs.Save();
+            }
+            
+            y += 26 * s;
+            
+            // Scroll area
+            float scrollTop = y;
+            float scrollH = winH - (scrollTop - winY) - 8 * s;
+            float contentH = CalculateNewTasksContentHeight(plugin, lineH, headerH, s);
+            
+            customVerticalScrollbar.fixedWidth = Mathf.Max(12, 12 * s);
+            customVerticalScrollbarThumb.fixedWidth = Mathf.Max(10, 10 * s);
+            
+            GUIStyle origScrollbar = GUI.skin.verticalScrollbar;
+            GUIStyle origThumb = GUI.skin.verticalScrollbarThumb;
+            GUI.skin.verticalScrollbar = customVerticalScrollbar;
+            GUI.skin.verticalScrollbarThumb = customVerticalScrollbarThumb;
+            
+            newTasksScrollPosition = GUI.BeginScrollView(
+                new Rect(x - 4 * s, scrollTop, w + 8 * s, scrollH),
+                newTasksScrollPosition,
+                new Rect(0, 0, w - 10 * s, contentH));
+            
+            GUI.skin.verticalScrollbar = origScrollbar;
+            GUI.skin.verticalScrollbarThumb = origThumb;
+            
+            float scrollY = 0;
+            float sectionW = w - 6 * s;
+            
+            if (plugin.NewTasksEnabled)
+            {
+                scrollY = DrawNewTasks(scrollY, sectionW, "Completed Tasks:", GetNewTasks(plugin), headerSize, itemSize, lineH, headerH, s);
+            }
+            else
+            {
+                GUI.color = new Color(0.4f, 0.5f, 0.4f);
+                GUI.Label(new Rect(4 * s, scrollY, sectionW, headerH), $"<size={headerSize}>New Tasks: DISABLED</size>");
+                GUI.color = Color.white;
+            }
+            
+            GUI.EndScrollView();
+            
+            // Handle dragging from title area (top 24px) - AFTER all controls
+            float dragAreaH = 24 * s;
+            Event e = Event.current;
+            Rect titleBar = new Rect(winX, winY, winW, dragAreaH);
+            
+            if (e.type == EventType.MouseDown && e.button == 0 && titleBar.Contains(e.mousePosition))
+            {
+                isDraggingNewTasksTracker = true;
+                newTasksDragOffset = e.mousePosition - new Vector2(winX, winY);
+                e.Use();
+            }
+            else if (e.type == EventType.MouseUp && e.button == 0 && isDraggingNewTasksTracker)
+            {
+                isDraggingNewTasksTracker = false;
+                PlayerPrefs.SetFloat(NEW_TASKS_X_KEY, newTasksTrackerWindowRect.x);
+                PlayerPrefs.SetFloat(NEW_TASKS_Y_KEY, newTasksTrackerWindowRect.y);
+                PlayerPrefs.Save();
+            }
+            else if (e.type == EventType.MouseDrag && isDraggingNewTasksTracker)
+            {
+                newTasksTrackerWindowRect.x = e.mousePosition.x - newTasksDragOffset.x;
+                newTasksTrackerWindowRect.y = e.mousePosition.y - newTasksDragOffset.y;
+                e.Use();
+            }
+        }
+        
+        private float CalculateNewTasksContentHeight(Plugin plugin, float lineH, float headerH, float s)
+        {
+            float h = headerH + 11 * lineH + 6 * s;
+            if (plugin.NewTasksEnabled)
+            {
+                h += headerH + 13 * lineH + 6 * s;
+            }
+            return h + 20 * s;
+        }
+        
+        private float DrawNewTasks(float startY, float width, string title, List<NewTaskInfo> tasks,
+            int headerSize, int itemSize, float lineH, float headerH, float s)
+        {
+            float y = startY;
+            int collected = 0;
+            foreach (var task in tasks) if (task.CompletedTask) collected++;
+            
+            // Header in dark ink
+            GUI.color = new Color(0.2f, 0.2f, 0.25f);
+            GUI.Label(new Rect(4 * s, y, width, headerH), $"<size={headerSize}><b>{title}</b> {collected}/{tasks.Count}</size>");
+            GUI.color = Color.white;
+            y += headerH;
+            
+            int checkSize = itemSize + 4;
+            foreach (var task in tasks)
+            {
+                // Green for collected, black for not
+                GUI.color = task.CompletedTask ? new Color(0.2f, 0.5f, 0.2f) : new Color(0.2f, 0.2f, 0.2f);
+                GUI.Label(new Rect(8 * s, y, width - 8 * s, lineH), $"<size={checkSize}>{(task.CompletedTask ? "✓" : "-")}</size><size={itemSize}> {task.Name}</size>");
+                GUI.color = Color.white;
+                y += lineH;
+            }
+            return y + 4 * s;
+        }
+        
+        private struct NewTaskInfo { public string Name; public bool CompletedTask; public NewTaskInfo(string n, bool c) { Name = n; CompletedTask = c; } }
+        
+        private List<NewTaskInfo> GetNewTasks(Plugin p) { var m = p.PropManager; return new List<NewTaskInfo> {
+            // Ordered based on what's most aesthetically pleasing: start area -> hub -> gardens -> high street -> back gardens -> pub
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1501), p.IsLocationChecked(Plugin.BASE_ID + 1501)), // "Break the intro gate"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1500), p.IsLocationChecked(Plugin.BASE_ID + 1500)), // "Drop some mail in the well"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1503), p.IsLocationChecked(Plugin.BASE_ID + 1503)), // "Short out the garden radio"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1504), p.IsLocationChecked(Plugin.BASE_ID + 1504)), // "Lock the groundskeeper IN the garden"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1511), p.IsLocationChecked(Plugin.BASE_ID + 1511)), // "Trap the TV shop owner in the garage"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1502), p.IsLocationChecked(Plugin.BASE_ID + 1502)), // "Break through the boards to the back gardens"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1505), p.IsLocationChecked(Plugin.BASE_ID + 1505)), // "Make the woman fix the topiary"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1506), p.IsLocationChecked(Plugin.BASE_ID + 1506)), // "Pose as a duck statue"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1507), p.IsLocationChecked(Plugin.BASE_ID + 1507)), // "Dress up the bush with both ribbons"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1510), p.IsLocationChecked(Plugin.BASE_ID + 1510)), // "Do some interior redecorating"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1508), p.IsLocationChecked(Plugin.BASE_ID + 1508)), // "Trip the burly man"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1509), p.IsLocationChecked(Plugin.BASE_ID + 1509)), // "Break a pint glass"
+            new NewTaskInfo(LocationMappings.GetLocationName(Plugin.BASE_ID + 1512), p.IsLocationChecked(Plugin.BASE_ID + 1512)), // "Perform at the pub with a harmonica"
         }; }
     }
 }

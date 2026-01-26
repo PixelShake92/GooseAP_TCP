@@ -164,6 +164,7 @@ class GooseGameWorld(World):
             itemNames.PROP_WATERING_CAN,
             itemNames.PROP_MALLET,
             itemNames.PROP_WOODEN_CRATE,
+            itemNames.PROP_CABBAGES,
             
             # High Street One-Off Props (21)
             itemNames.PROP_HORN_RIMMED_GLASSES,
@@ -187,6 +188,7 @@ class GooseGameWorld(World):
             itemNames.PROP_BABY_DOLL,
             itemNames.PROP_PRICING_GUN,
             itemNames.PROP_ADDING_MACHINE,
+            itemNames.PROP_GARAGE_ROPE,
             
             # Back Gardens One-Off Props (23 with no rose box)
             itemNames.PROP_CRICKET_BALL,
@@ -203,7 +205,7 @@ class GooseGameWorld(World):
             itemNames.PROP_BRA,
             itemNames.PROP_ROSE,
             # Removing Rose Box Soul until I can solve the physics issues with it
-            # itemNames.PROP_ROSE_BOX,
+            itemNames.PROP_ROSE_BOX,
             itemNames.PROP_CRICKET_BAT,
             itemNames.PROP_TEA_POT,
             itemNames.PROP_CLIPPERS,
@@ -406,6 +408,7 @@ class GooseGameWorld(World):
             "include_interactions": self.options.include_interactions.value,
             "include_model_church_pecks": self.options.include_model_church_pecks.value,
             "include_milestone_locations": self.options.include_milestone_locations.value,
+            "include_new_tasks": self.options.include_new_tasks.value,
             "include_npc_souls": self.options.include_npc_souls.value,
             "include_prop_souls": self.options.include_prop_souls.value,
             "filler_amount_mega_honk": self.options.filler_amount_mega_honk.value,

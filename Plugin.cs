@@ -62,6 +62,7 @@ namespace GooseGameAP
         // Soul settings from slot data
         public bool NPCSoulsEnabled => Client?.NPCSoulsEnabled ?? true;
         public bool PropSoulsEnabled => Client?.PropSoulsEnabled ?? true;
+        public bool NewTasksEnabled => Client?.NewTasksEnabled ?? true;
         
         // Buff tracking
         public bool IsSilent => TrapManager?.IsSilent ?? false;
@@ -192,16 +193,22 @@ namespace GooseGameAP
                 UI?.ToggleServerLog();
             }
             
-            // F4 key: Toggle location highlighting (sparkles on unchecked items)
+            // F4 key: Toggle server log overlay
             if (Input.GetKeyDown(KeyCode.F4))
+            {
+                UI?.ToggleNewTasksTracker();
+            }
+            
+            // F5 key: Toggle location highlighting (sparkles on unchecked items)
+            if (Input.GetKeyDown(KeyCode.F5))
             {
                 LocationHighlight?.Toggle();
                 string state = LocationHighlight?.HighlightingEnabled == true ? "ON" : "OFF";
                 UI?.ShowNotification($"Location highlighting: {state}");
             }
             
-            // F5 key: Cycle highlight color (Shift+F5 for backwards)
-            if (Input.GetKeyDown(KeyCode.F5))
+            // F6 key: Cycle highlight color (Shift+F6 for backwards)
+            if (Input.GetKeyDown(KeyCode.F6))
             {
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                 {
@@ -571,6 +578,9 @@ namespace GooseGameAP
             // Draw server log overlay (always if visible, even when main UI is hidden)
             UI?.DrawServerLog(this);
             
+            // Draw extra task list overlay (always if visible, even when main UI is hidden)
+            UI?.DrawNewTasksTracker(this);
+            
             if (!showUI) return;
             UI?.DrawUI(this);
         }
@@ -787,7 +797,7 @@ namespace GooseGameAP
                     break;
 
                 // Break boards
-                case 1310:
+                case 1502:
                     HasEnteredBackGardens = true;
                     break;
 
@@ -797,6 +807,14 @@ namespace GooseGameAP
                     break;
                 case 1369:
                     SendLocationCheck(1391 + BASE_ID);
+                    break;
+                
+                // Dress up the bush with both ribbons
+                case 9998: case 9999:
+                    if (checkedLocations.Contains(9998 + BASE_ID) && checkedLocations.Contains(9999 + BASE_ID))
+                    {
+                        SendLocationCheck(1507 + BASE_ID);
+                    }
                     break;
             }
         }
@@ -952,7 +970,7 @@ namespace GooseGameAP
                     break;
                 
                 // Prop Souls (400-621) - handled by PropManager
-                case 400: case 401: case 402: case 403: case 404: case 405: case 406: case 407: case 408: case 409:
+                case 400: case 402: case 403: case 404: case 405: case 406: case 407: case 408: case 409:
                 case 410: case 411: case 412: case 413: case 414: case 415: case 416: case 417: case 418: case 419:
                 case 420: case 421: case 422: case 423: case 424: case 425:
                 case 500: case 501: case 502: case 503: case 504: case 505: case 506: case 507: case 508: case 509:
@@ -972,6 +990,20 @@ namespace GooseGameAP
                     PropManager?.ReceiveSoul(soulName);
                     PropManager?.SaveSouls();
                     UI?.ShowNotification($"{soulName} received!");
+                    break;
+
+                case 401:  // Tomatoes
+                    PropManager?.ReceiveSoul("Tomatoes");
+                    PropManager?.SaveSouls();
+                    UI?.ShowNotification($"Tomatoes received!");
+                    
+                    var checkAllSwitchSystems = FindObjectsOfType<SwitchSystem>();
+                    foreach (var switchSys in checkAllSwitchSystems)
+                    {
+                        string switchSysParentName = switchSys?.transform?.parent?.gameObject?.name ?? "no parent";
+                        Log.LogInfo($"[INTERACT DEBUG] Noting existence of SwitchSystem '{switchSys.name}' with parent '{switchSysParentName}'");
+                    }
+
                     break;
                 
                 case 204: // Coin filler item
@@ -1053,6 +1085,21 @@ namespace GooseGameAP
         
         public void OnGooseShooed()
         {
+        }
+        
+        public void OnLaunch(Prop prop, PropLaunchEffect launcher)
+        {
+            Log.LogInfo("[OnLaunch] Launching: " + prop + " with: " + launcher);
+            if (launcher.name == "launcher0")
+            {
+                Instance?.InteractionTracker?.OnInteraction("WellDrop");
+                
+                if (PropManager.CleanPropName(prop.name) == "exitletter" || PropManager.CleanPropName(prop.name) == "exitparcel" || PropManager.CleanPropName(prop.name) == "minimailpillarprop")
+                {
+                    Log.LogInfo("[OnLaunch] Prop launched successfully counts as mail");
+                    Instance?.InteractionTracker?.OnInteraction("WellDrop2");
+                }
+            }
         }
         
         public bool CanEnterArea(GoalListArea area)
@@ -1248,6 +1295,7 @@ namespace GooseGameAP
             
             PlayerPrefs.DeleteKey("AP_NPCSoulsEnabled");
             PlayerPrefs.DeleteKey("AP_PropSoulsEnabled");
+            PlayerPrefs.DeleteKey("AP_NewTasksEnabled");
             
             PlayerPrefs.DeleteKey("AP_LastItemIndex");
             PlayerPrefs.DeleteKey("AP_SpeedyFeet");

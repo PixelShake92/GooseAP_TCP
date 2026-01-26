@@ -4,7 +4,8 @@ from .Locations import (
     BASE_ID, location_table, extra_locations, speedrun_locations, completion_location,
     milestone_locations, item_pickup_locations, drag_item_locations, interaction_locations,
     unique_item_pickup_locations, unique_item_drag_locations, sandcastle_peck_locations,
-    sandcastle_first_peck_locations, milestone_locations_main_tasks, GooseGameLocation
+    sandcastle_first_peck_locations, milestone_locations_main_tasks, new_tasks_locations,
+    GooseGameLocation
 )
 from .Rules import UntitledGooseRules
 from .names import itemNames, locationNames, regionNames
@@ -101,6 +102,11 @@ def create_regions(world: "GooseGameWorld") -> None:
     # Add interaction locations if enabled
     if world.options.include_interactions:
         for loc_name, loc_data in interaction_locations.items():
+            add_location(loc_name, loc_data.id, loc_data.region)
+    
+    # Add new tasks locations if enabled
+    if world.options.include_new_tasks:
+        for loc_name, loc_data in new_tasks_locations.items():
             add_location(loc_name, loc_data.id, loc_data.region)
     
     # Add sandcastle peck locations if enabled

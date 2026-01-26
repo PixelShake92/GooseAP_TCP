@@ -110,6 +110,27 @@ class IncludeMilestoneLocations(Toggle):
     default = True
 
 
+class IncludeNewTasks(Toggle):
+    """Include locations for new tasks created for this archipelago!
+    Some of these happen naturally throughout gameplay, and some are more involved.
+    You can view these tasks at any time in-game by pressing F4. New tasks include:
+    - Break the intro gate
+    - Drop something in the well
+    - Short out the garden radio
+    - Lock the groundskeeper IN the garden
+    - Trap the TV shop owner in the garage
+    - Break through the boards to the back gardens
+    - Make the woman fix the topiary
+    - Pose as a duck statue
+    - Dress up the bush with both ribbons
+    - Do some interior redecorating
+    - Trip the burly man
+    - Break a pint glass
+    - Perform at the pub with a harmonica"""
+    display_name = "Include New Tasks"
+    default = True
+
+
 class FillerAmountMegaHonk(Range):
     """Amount of Mega Honk in the filler pool.
     Mega Honk effects - upgraded honking abilities
@@ -204,6 +225,7 @@ class GooseGameOptions(PerGameCommonOptions):
     include_interactions: IncludeInteractions
     include_model_church_pecks: IncludeModelChurchPecks
     include_milestone_locations: IncludeMilestoneLocations
+    include_new_tasks: IncludeNewTasks
     filler_amount_mega_honk: FillerAmountMegaHonk
     filler_amount_speedy_feet: FillerAmountSpeedyFeet
     filler_active_silent_steps: FillerActiveSilentSteps

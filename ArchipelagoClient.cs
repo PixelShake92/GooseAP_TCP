@@ -50,6 +50,7 @@ namespace GooseGameAP
         // Slot data options
         public bool NPCSoulsEnabled { get; private set; } = true;
         public bool PropSoulsEnabled { get; private set; } = true;
+        public bool NewTasksEnabled { get; private set; } = true;
         
         // Gate sync timing
         public bool PendingGateSync { get; set; } = false;
@@ -858,10 +859,20 @@ namespace GooseGameAP
                 Log.LogInfo($"[AP] Parsed include_prop_souls: {PropSoulsEnabled}");
             }
             
-            Log.LogInfo($"[AP] Slot data parsed: NPCSouls={NPCSoulsEnabled}, PropSouls={PropSoulsEnabled}");
+            int newTasksIdx = data.IndexOf("\"include_new_tasks\":", slotDataIdx);
+            if (newTasksIdx > 0)
+            {
+                int colonPos = newTasksIdx + 20;
+                string valueArea = data.Substring(colonPos, Math.Min(10, data.Length - colonPos)).Trim();
+                NewTasksEnabled = valueArea.StartsWith("true") || valueArea.StartsWith("1");
+                Log.LogInfo($"[AP] Parsed include_new_tasks: {NewTasksEnabled}");
+            }
+            
+            Log.LogInfo($"[AP] Slot data parsed: NPCSouls={NPCSoulsEnabled}, PropSouls={PropSoulsEnabled}, NewTasks={NewTasksEnabled}");
             
             PlayerPrefs.SetInt("AP_NPCSoulsEnabled", NPCSoulsEnabled ? 1 : 0);
             PlayerPrefs.SetInt("AP_PropSoulsEnabled", PropSoulsEnabled ? 1 : 0);
+            PlayerPrefs.SetInt("AP_NewTasksEnabled", NewTasksEnabled ? 1 : 0);
             PlayerPrefs.Save();
         }
         
@@ -869,7 +880,8 @@ namespace GooseGameAP
         {
             NPCSoulsEnabled = PlayerPrefs.GetInt("AP_NPCSoulsEnabled", 1) == 1;
             PropSoulsEnabled = PlayerPrefs.GetInt("AP_PropSoulsEnabled", 1) == 1;
-            Log.LogInfo($"[AP] Loaded soul settings: NPCSouls={NPCSoulsEnabled}, PropSouls={PropSoulsEnabled}");
+            NewTasksEnabled = PlayerPrefs.GetInt("AP_NewTasksEnabled", 1) == 1;
+            Log.LogInfo($"[AP] Loaded soul settings: NPCSouls={NPCSoulsEnabled}, PropSouls={PropSoulsEnabled}, NewTasks={NewTasksEnabled}");
         }
         
         /// <summary>

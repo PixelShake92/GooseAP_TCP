@@ -258,11 +258,6 @@ class UntitledGooseRules:
                 locationNames.INTERACT_BIKE_BELL: self.interact_bike_bell,
                 locationNames.INTERACT_GARDEN_TAP: self.interact_garden_water,
                 locationNames.INTERACT_SPRINKLER: self.interact_garden_water,
-                locationNames.SHORT_OUT_RADIO: self.short_out_radio,
-                locationNames.LOCK_GROUNDSKEEPER_IN: self.lock_groundskeeper_out,
-                locationNames.OPEN_INTRO_GATE: self.interact_intro_gate,
-                # locationNames.DROP_ITEM_IN_WELL: self.interact_well,
-                locationNames.BREAK_THROUGH_BOARDS: self.interact_boards,
                 locationNames.INTERACT_UNPLUG_RADIO: self.interact_radio,
                 locationNames.INTERACT_UMBRELLA_BLACK: self.interact_umbrellas,
                 locationNames.INTERACT_UMBRELLA_RAINBOW: self.interact_umbrellas,
@@ -276,8 +271,6 @@ class UntitledGooseRules:
                 locationNames.INTERACT_TRELLIS: self.interact_trellis,
                 locationNames.INTERACT_SUNFLOWER: self.interact_back_gardens_objects,
                 locationNames.INTERACT_TOPIARY: self.interact_back_gardens_objects,
-                locationNames.MAKE_WOMAN_FIX_TOPIARY: self.interact_make_woman_fix_topiary,
-                locationNames.POSE_AS_DUCK: self.pose_as_duck_statue,
                 locationNames.INTERACT_WIND_CHIME_C: self.interact_back_gardens_objects,
                 locationNames.INTERACT_WIND_CHIME_D: self.interact_back_gardens_objects,
                 locationNames.INTERACT_WIND_CHIME_E: self.interact_back_gardens_objects,
@@ -290,7 +283,25 @@ class UntitledGooseRules:
                 locationNames.INTERACT_BURLY_MANS_LACES_L: self.interact_burly_laces,
                 locationNames.INTERACT_BURLY_MANS_LACES_R: self.interact_burly_laces,
                 locationNames.INTERACT_PUB_TAP: self.interact_pub_tap,
+                locationNames.INTERACT_WELL: self.interact_well,
+            }
+
+        # New Tasks Rules
+        if self.world.options.include_new_tasks.value:
+            self.new_tasks_rules = {
+                locationNames.SHORT_OUT_RADIO: self.short_out_radio,
+                locationNames.LOCK_GROUNDSKEEPER_IN: self.lock_groundskeeper_out,
+                locationNames.OPEN_INTRO_GATE: self.interact_intro_gate,
+                locationNames.DROP_MAIL_IN_WELL: self.drop_mail_in_well,
+                locationNames.BREAK_THROUGH_BOARDS: self.interact_boards,
+                locationNames.MAKE_WOMAN_FIX_TOPIARY: self.interact_make_woman_fix_topiary,
+                locationNames.POSE_AS_DUCK: self.pose_as_duck_statue,
+                locationNames.DRESS_UP_BUSH: self.dress_up_bush,
+                locationNames.INTERIOR_REDECORATING: self.drag_messy_sign,
                 locationNames.TRIP_BURLY_MAN: self.interact_burly_laces,
+                locationNames.BREAK_PINT_GLASS: self.pickup_pint_glass,
+                locationNames.TRAP_TV_SHOP_OWNER_GARAGE: self.trap_tv_shop_owner_in_garage,
+                locationNames.PERFORM_WITH_HARMONICA: self.perform_with_harmonica,
             }
 
         # Model Church Pecking Rules
@@ -562,6 +573,7 @@ class UntitledGooseRules:
             self.has_high_street(state)
             and self.has_npc(state, itemNames.NPC_BOY)
             and self.has_npc(state, itemNames.NPC_TV_SHOP_OWNER)
+            and self.has_prop(state, itemNames.PROP_GARAGE_ROPE)
         )
     
     def make_boy_wear_wrong_glasses(self, state: CollectionState) -> bool:
@@ -636,6 +648,7 @@ class UntitledGooseRules:
         return (
             self.has_npc(state, itemNames.NPC_MARKET_LADY)
             and self.has_prop(state, itemNames.PROP_CHALK)
+            and self.has_prop(state, itemNames.PROP_GARAGE_ROPE)
             and task_count >= 5
         )
     
@@ -728,7 +741,7 @@ class UntitledGooseRules:
                     and self.do_washing(state)
                     and self.has_prop(state, itemNames.PROP_ROSE)
                     # Removing Rose Box Soul until I can solve the physics issues with it
-                    # and self.has_prop(state, itemNames.PROP_ROSE_BOX)
+                    and self.has_prop(state, itemNames.PROP_ROSE_BOX)
                     and self.has_prop(state, itemNames.PROP_CLIPPERS)
                     and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_CLEAN)
                 )
@@ -757,7 +770,7 @@ class UntitledGooseRules:
             and self.has_prop(state, itemNames.PROP_DRAWER)
             and self.has_prop(state, itemNames.PROP_ROSE)
             # Removing Rose Box Soul until I can solve the physics issues with it
-            # and self.has_prop(state, itemNames.PROP_ROSE_BOX)
+            and self.has_prop(state, itemNames.PROP_ROSE_BOX)
             and self.has_prop(state, itemNames.PROP_CLIPPERS)
             and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_CLEAN)
             and task_count >= 5
@@ -853,7 +866,10 @@ class UntitledGooseRules:
         )
     
     def cabbage_picnic(self, state: CollectionState) -> bool:
-        return self.has_garden(state)
+        return (
+            self.has_garden(state)
+            and self.has_prop(state, itemNames.PROP_CABBAGES)
+        )
     
     def trip_boy_in_puddle(self, state: CollectionState) -> bool:
         return (
@@ -1188,7 +1204,7 @@ class UntitledGooseRules:
             and self.has_prop(state, itemNames.PROP_DRAWER)
             and self.has_prop(state, itemNames.PROP_ROSE)
             # Removing Rose Box Soul until I can solve the physics issues with it
-            # and self.has_prop(state, itemNames.PROP_ROSE_BOX)
+            and self.has_prop(state, itemNames.PROP_ROSE_BOX)
             and self.has_prop(state, itemNames.PROP_CLIPPERS)
             and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_CLEAN)
             and task_count >= 5
@@ -2042,7 +2058,7 @@ class UntitledGooseRules:
         return (
             self.has_npc(state, itemNames.NPC_TIDY_NEIGHBOUR)
             # Removing Rose Box Soul until I can solve the physics issues with it
-            # and self.has_prop(state, itemNames.PROP_ROSE_BOX)
+            and self.has_prop(state, itemNames.PROP_ROSE_BOX)
             and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_CLEAN)
             and task_count >= 5
         )
@@ -2259,6 +2275,16 @@ class UntitledGooseRules:
     def interact_well(self, state: CollectionState) -> bool:
         return True
     
+    def drop_mail_in_well(self, state: CollectionState) -> bool:
+        return (
+            self.has_pub(state)
+            and (
+                self.has_prop(state, itemNames.PROP_LETTER)
+                or self.has_model_village(state)
+                and self.has_prop(state, itemNames.PROP_MINI_MAIL_PILLAR)
+            )
+        )
+    
     def interact_boards(self, state: CollectionState) -> bool:
         return self.has_back_gardens(state)
     
@@ -2282,6 +2308,13 @@ class UntitledGooseRules:
         return (
             self.has_high_street(state)
             and self.has_npc(state, itemNames.NPC_BOY)
+        )
+    
+    def trap_tv_shop_owner_in_garage(self, state: CollectionState) -> bool:
+        return (
+            self.trap_shopkeep_in_garage(state)
+            and self.has_npc(state, itemNames.NPC_TV_SHOP_OWNER)
+            and self.has_prop(state, itemNames.PROP_WALKIE_TALKIES)
         )
     
     def interact_back_gardens_objects(self, state: CollectionState) -> bool:
@@ -2309,6 +2342,12 @@ class UntitledGooseRules:
             and self.has_prop(state, itemNames.PROP_DRAWER)
         )
     
+    def dress_up_bush(self, state: CollectionState) -> bool:
+        return (
+            self.make_someone_prune_rose(state)
+            and self.has_prop(state, itemNames.PROP_RIBBONS)
+        )
+    
     def interact_van_doors(self, state: CollectionState) -> bool:
         return self.has_pub(state)
     
@@ -2320,6 +2359,12 @@ class UntitledGooseRules:
     
     def interact_pub_tap(self, state: CollectionState) -> bool:
         return self.has_pub(state)
+    
+    def perform_with_harmonica(self, state: CollectionState) -> bool:
+        return (
+            self.be_awarded_flower(state)
+            and self.has_prop(state, itemNames.PROP_HARMONICA)
+        )
     
     def peck_church(self, state: CollectionState) -> bool:
         return self.has_model_village(state)
@@ -2365,6 +2410,12 @@ class UntitledGooseRules:
         # Interaction Rules
         if self.world.options.include_interactions.value:
             for location, rules in self.interaction_rules.items():
+                new_rule = self.world.multiworld.get_location(location, self.player)
+                set_rule(new_rule, rules)
+
+        # New Tasks Rules
+        if self.world.options.include_new_tasks.value:
+            for location, rules in self.new_tasks_rules.items():
                 new_rule = self.world.multiworld.get_location(location, self.player)
                 set_rule(new_rule, rules)
 

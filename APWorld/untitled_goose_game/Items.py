@@ -68,6 +68,7 @@ item_table: Dict[str, GooseGameItemData] = {
     
     # === GARDEN ONE-OFF PROP SOULS (IDs 500-519) ===
     itemNames.PROP_RADIO: GooseGameItemData(BASE_ID + 500, ItemClassification.progression),
+    itemNames.PROP_CABBAGES: GooseGameItemData(BASE_ID + 502, ItemClassification.progression_deprioritized),
     itemNames.PROP_TROWEL: GooseGameItemData(BASE_ID + 501, ItemClassification.progression),
     itemNames.PROP_TULIP: GooseGameItemData(BASE_ID + 503, ItemClassification.progression),
     itemNames.PROP_JAM: GooseGameItemData(BASE_ID + 504, ItemClassification.progression),
@@ -102,6 +103,7 @@ item_table: Dict[str, GooseGameItemData] = {
     itemNames.PROP_DUSTBIN_LID: GooseGameItemData(BASE_ID + 536, ItemClassification.progression_deprioritized),
     itemNames.PROP_SHOPPING_BASKET: GooseGameItemData(BASE_ID + 537, ItemClassification.progression),
     itemNames.PROP_PUSH_BROOM: GooseGameItemData(BASE_ID + 538, ItemClassification.progression),
+    itemNames.PROP_GARAGE_ROPE: GooseGameItemData(BASE_ID + 539, ItemClassification.progression),
     itemNames.PROP_DUSTBIN: GooseGameItemData(BASE_ID + 540, ItemClassification.progression_deprioritized),
     itemNames.PROP_BABY_DOLL: GooseGameItemData(BASE_ID + 541, ItemClassification.progression_deprioritized),
     itemNames.PROP_PRICING_GUN: GooseGameItemData(BASE_ID + 542, ItemClassification.progression_deprioritized),
@@ -123,7 +125,7 @@ item_table: Dict[str, GooseGameItemData] = {
     itemNames.PROP_BRA: GooseGameItemData(BASE_ID + 562, ItemClassification.progression),
     itemNames.PROP_ROSE: GooseGameItemData(BASE_ID + 563, ItemClassification.progression),
     # Removing Rose Box Soul until I can solve the physics issues with it
-    # itemNames.PROP_ROSE_BOX: GooseGameItemData(BASE_ID + 564, ItemClassification.progression),
+    itemNames.PROP_ROSE_BOX: GooseGameItemData(BASE_ID + 564, ItemClassification.progression),
     itemNames.PROP_CRICKET_BAT: GooseGameItemData(BASE_ID + 565, ItemClassification.progression_deprioritized),
     itemNames.PROP_TEA_POT: GooseGameItemData(BASE_ID + 566, ItemClassification.progression_deprioritized),
     itemNames.PROP_CLIPPERS: GooseGameItemData(BASE_ID + 567, ItemClassification.progression),
@@ -358,7 +360,7 @@ ITEM_GROUPS = {
         itemNames.PROP_BRA,
         itemNames.PROP_ROSE,
         # Removing Rose Box Soul until I can solve the physics issues with it
-        # itemNames.PROP_ROSE_BOX,
+        itemNames.PROP_ROSE_BOX,
         itemNames.PROP_CRICKET_BAT,
         itemNames.PROP_TEA_POT,
         itemNames.PROP_CLIPPERS,
@@ -385,7 +387,7 @@ ITEM_GROUPS = {
         itemNames.PROP_BRA,
         itemNames.PROP_ROSE,
         # Removing Rose Box Soul until I can solve the physics issues with it
-        # itemNames.PROP_ROSE_BOX,
+        itemNames.PROP_ROSE_BOX,
         itemNames.PROP_CRICKET_BAT,
         itemNames.PROP_TEA_POT,
         itemNames.PROP_CLIPPERS,

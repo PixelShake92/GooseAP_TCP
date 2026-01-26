@@ -340,20 +340,15 @@ drag_item_locations: Dict[str, GooseGameLocationData] = {
 # =============================================================================
 
 interaction_locations: Dict[str, GooseGameLocationData] = {
+    # Hub interactions (1300)
+    locationNames.INTERACT_WELL: GooseGameLocationData(BASE_ID + 1300, regionNames.HUB),
+
     # Garden interactions (1301-1303)
     locationNames.INTERACT_BIKE_BELL: GooseGameLocationData(BASE_ID + 1301, regionNames.START_AREA),
     locationNames.INTERACT_GARDEN_TAP: GooseGameLocationData(BASE_ID + 1302, regionNames.GARDEN),
     locationNames.INTERACT_SPRINKLER: GooseGameLocationData(BASE_ID + 1303, regionNames.GARDEN),
-    locationNames.SHORT_OUT_RADIO: GooseGameLocationData(BASE_ID + 1304, regionNames.GARDEN),
-    locationNames.LOCK_GROUNDSKEEPER_IN: GooseGameLocationData(BASE_ID + 1305, regionNames.GARDEN),
-    
-    # Hub interactions (1306, 1500)
-    locationNames.OPEN_INTRO_GATE: GooseGameLocationData(BASE_ID + 1306, regionNames.START_AREA),
-    # REMOVED until we can get it to work
-    # locationNames.DROP_ITEM_IN_WELL: GooseGameLocationData(BASE_ID + 1500, regionNames.HUB), # Drop any item into the well
     
     # High Street interactions (1310-1317)
-    locationNames.BREAK_THROUGH_BOARDS: GooseGameLocationData(BASE_ID + 1310, regionNames.BACK_GARDENS),
     locationNames.INTERACT_UNPLUG_RADIO: GooseGameLocationData(BASE_ID + 1311, regionNames.HIGH_STREET),
     locationNames.INTERACT_UMBRELLA_BLACK: GooseGameLocationData(BASE_ID + 1313, regionNames.HIGH_STREET),
     locationNames.INTERACT_UMBRELLA_RAINBOW: GooseGameLocationData(BASE_ID + 1314, regionNames.HIGH_STREET),
@@ -369,8 +364,6 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_TRELLIS: GooseGameLocationData(BASE_ID + 1324, regionNames.BACK_GARDENS),
     locationNames.INTERACT_SUNFLOWER: GooseGameLocationData(BASE_ID + 1325, regionNames.BACK_GARDENS),
     locationNames.INTERACT_TOPIARY: GooseGameLocationData(BASE_ID + 1326, regionNames.BACK_GARDENS),
-    locationNames.MAKE_WOMAN_FIX_TOPIARY: GooseGameLocationData(BASE_ID + 1327, regionNames.BACK_GARDENS),
-    locationNames.POSE_AS_DUCK: GooseGameLocationData(BASE_ID + 1328, regionNames.BACK_GARDENS),
     
     # Wind Chimes - individual notes (1340-1346) - left to right: G, F, E, D, C, B, A
     locationNames.INTERACT_WIND_CHIME_G: GooseGameLocationData(BASE_ID + 1340, regionNames.BACK_GARDENS),
@@ -387,7 +380,6 @@ interaction_locations: Dict[str, GooseGameLocationData] = {
     locationNames.INTERACT_BURLY_MANS_LACES_L: GooseGameLocationData(BASE_ID + 1332, regionNames.PUB),
     locationNames.INTERACT_BURLY_MANS_LACES_R: GooseGameLocationData(BASE_ID + 1333, regionNames.PUB),
     locationNames.INTERACT_PUB_TAP: GooseGameLocationData(BASE_ID + 1334, regionNames.PUB),
-    locationNames.TRIP_BURLY_MAN: GooseGameLocationData(BASE_ID + 1335, regionNames.PUB),
 }
 
 # UNIQUE TRACKED ITEMS - Runtime-renamed items (IDs 1401-1450)
@@ -479,6 +471,25 @@ sandcastle_first_peck_locations: Dict[str, GooseGameLocationData] = {
     locationNames.PECK_TOWER: GooseGameLocationData(BASE_ID + 1391, regionNames.MODEL_VILLAGE),
 }
 
+# =============================================================================
+# NEW TASK LOCATIONS - A new list of tasks made for Archipelago (1500-1520)
+# =============================================================================
+new_tasks_locations: Dict[str, GooseGameLocationData] = {
+    locationNames.DROP_MAIL_IN_WELL: GooseGameLocationData(BASE_ID + 1500, regionNames.PUB),
+    locationNames.OPEN_INTRO_GATE: GooseGameLocationData(BASE_ID + 1501, regionNames.START_AREA),
+    locationNames.BREAK_THROUGH_BOARDS: GooseGameLocationData(BASE_ID + 1502, regionNames.BACK_GARDENS),
+    locationNames.SHORT_OUT_RADIO: GooseGameLocationData(BASE_ID + 1503, regionNames.GARDEN),
+    locationNames.LOCK_GROUNDSKEEPER_IN: GooseGameLocationData(BASE_ID + 1504, regionNames.GARDEN),
+    locationNames.MAKE_WOMAN_FIX_TOPIARY: GooseGameLocationData(BASE_ID + 1505, regionNames.BACK_GARDENS),
+    locationNames.POSE_AS_DUCK: GooseGameLocationData(BASE_ID + 1506, regionNames.BACK_GARDENS),
+    locationNames.DRESS_UP_BUSH: GooseGameLocationData(BASE_ID + 1507, regionNames.BACK_GARDENS),
+    locationNames.TRIP_BURLY_MAN: GooseGameLocationData(BASE_ID + 1508, regionNames.PUB),
+    locationNames.BREAK_PINT_GLASS: GooseGameLocationData(BASE_ID + 1509, regionNames.PUB),
+    locationNames.INTERIOR_REDECORATING: GooseGameLocationData(BASE_ID + 1510, regionNames.BACK_GARDENS),
+    locationNames.TRAP_TV_SHOP_OWNER_GARAGE: GooseGameLocationData(BASE_ID + 1511, regionNames.HIGH_STREET),
+    locationNames.PERFORM_WITH_HARMONICA: GooseGameLocationData(BASE_ID + 1512, regionNames.PUB),
+}
+
 
 def get_all_locations(include_extra: bool = False, include_speedrun: bool = False, 
                       include_items: bool = True, include_drags: bool = True,
@@ -534,4 +545,5 @@ def get_all_location_ids() -> Dict[str, int]:
     all_locs.update({name: data.id for name, data in unique_item_drag_locations.items()})
     all_locs.update({name: data.id for name, data in sandcastle_peck_locations.items()})
     all_locs.update({name: data.id for name, data in sandcastle_first_peck_locations.items()})
+    all_locs.update({name: data.id for name, data in new_tasks_locations.items()})
     return all_locs
