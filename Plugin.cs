@@ -69,7 +69,7 @@ namespace GooseGameAP
         public int MegaHonkCount => TrapManager?.MegaHonkCount ?? 0;
         
         // DeathLink
-        public bool DeathLinkEnabled => Client?.NewTasksEnabled ?? false;
+        public bool DeathLinkEnabled => Client?.DeathLinkEnabled ?? false;
         private bool deathLinkPending = false;
         
         // Location tracking
