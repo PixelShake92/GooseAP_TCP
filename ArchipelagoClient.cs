@@ -263,7 +263,7 @@ namespace GooseGameAP
                     tags + ",\"password\":" + passStr + ",\"items_handling\":7}]";
                 
                 writer.WriteLine(connectPacket);
-                Log.LogInfo("[AP] Sent Connect packet");
+                Log.LogInfo($"[AP] Sent Connect packet. DeathLink={deathLinkEnabled}");
                 
                 while (tcp != null && tcp.Connected)
                 {
@@ -376,8 +376,11 @@ namespace GooseGameAP
             {
                 if (plugin.DeathLinkEnabled)
                 {
-                    AddServerLog("[DEATHLINK] Another player died!", ServerLogType.DeathLink);
-                    plugin.TriggerDeathLink();
+                    if (!data.Contains("\"source\":" + slotName))
+                    {
+                        AddServerLog("[DEATHLINK] Another player died!", ServerLogType.DeathLink);
+                        plugin.TriggerDeathLink();
+                    }
                 }
             }
             else if (data.Contains("\"cmd\":\"ConnectionRefused\""))

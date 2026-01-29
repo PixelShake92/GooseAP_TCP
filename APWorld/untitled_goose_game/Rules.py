@@ -851,6 +851,7 @@ class UntitledGooseRules:
             self.has_npc(state, itemNames.NPC_BURLY_MAN)
             and self.has_npc(state, itemNames.NPC_PUB_LADY)
             and self.has_prop(state, itemNames.PROP_BUCKET)
+            and self.has_prop(state, itemNames.PROP_TOMATOES)
             and self.has_prop(state, itemNames.PROP_NO_GOOSE_SIGN_PUB)
             and task_count >= 6
         )
